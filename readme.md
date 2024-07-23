@@ -8,41 +8,42 @@ O sistema contém funcionalidades de login, cadastro de usuários, listagem de O
 
 ### Funcionalidades
 
-- **Cadastro de Usuários (Admin/User Comum):** 
+#### **Cadastro de Usuários (Admin/User Comum):** 
 - Permite registrar membros de acordo com tipo (Admin ou User Comum). 
 - Armazena os dados de: Nome completo, E-mail, Senha, Confirmação de senha, Tipo de usuário (ADMIN ou usuário).
 - Possui validação de campos (e.g., e-mail válido, senha forte).
 
-- **Login de Usuários (Admin/User Comum):** 
+#### **Login de Usuários (Admin/User Comum):** 
 - Permite realizar autenticação de usuários e recuperação de senha. 
   
-- **Lista de ONGs:** 
+#### **Lista de ONGs:** 
 - Os usuários podem visualizar a lista de ONGs cadastradas.
 - As listas de ONGs contém os campos de Nome da ONG, Descrição, Localização, Área de atuação, Contato.
 
 - Possui como funcionalidades: 
-- Listagem paginada de ONGs.
-- Filtro por localização e área de atuação.
-- Pesquisa por nome da ONG.
-- Botão para visualizar mais detalhes de cada ONG.
 
-- **Cadastrar novas ONGs:** 
+  - Listagem paginada de ONGs.
+  - Filtro por localização e área de atuação.
+  - Pesquisa por nome da ONG.
+  - Botão para visualizar mais detalhes de cada ONG.
+
+#### **Cadastrar novas ONGs:** 
 - Os usuários do tipo Admin podem cadastrar novas ONGs.
 
 - Possui como funcionalidades: 
-- Formulário de cadastro com validação de campos.
-- Apenas ADMIN pode cadastrar novas ONGs.
+  - Formulário de cadastro com validação de campos.
+  - Apenas ADMIN pode cadastrar novas ONGs.
   
-- **Acessar o seu perfil de usuário:** 
+#### **Acessar o seu perfil de usuário:** 
 - Para o usuário comum permite:
-- Visualização de informações pessoais
-- Listagem de ONGs nas quais está inscrito
-- Opção para editar perfil e senha
+  - Visualização de informações pessoais
+  - Listagem de ONGs nas quais está inscrito
+  - Opção para editar perfil e senha
 
 - Para o usuário Admin permite:
-- Visualização de informações pessoais
-- Gestão de ONGs (adicionar, editar e remover ONGs)
-- Listagem e gerenciamento de usuários (promover ou rebaixar usuários)
+  - Visualização de informações pessoais
+  - Gestão de ONGs (adicionar, editar e remover ONGs)
+  - Listagem e gerenciamento de usuários (promover ou rebaixar usuários)
 
 ### Front-End
 
