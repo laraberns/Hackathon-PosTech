@@ -6,8 +6,10 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import logoImg from '../../assets/logo.png';
+import Image from 'next/image';
 
-export default function Profile() {
+export default function ProfileUser() {
     const [user, setUser] = useState({
         name: 'John Doe',
         email: 'johndoe@gmail.com',
@@ -59,9 +61,12 @@ export default function Profile() {
             <Container maxWidth="md">
                 <ToastContainer />
                 <Box sx={{ mt: 5, backgroundColor: "white", padding: "20px", borderRadius: "20px" }}>
-                    <Typography component="h1" variant="h4" sx={{ mb: 2 }}>
+                    <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap:2}}>
+                    <Image src={logoImg} alt="Workflow" width={150} />
+                    <Typography variant="h4" sx={{ mb: 2 }}>
                         Meu Perfil
                     </Typography>
+                    </Box>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Box sx={{ backgroundColor: "lightgrey", padding: "20px", borderRadius: "20px" }}>
@@ -83,7 +88,6 @@ export default function Profile() {
                                 </Button>
                                 <Button
                                     variant="contained"
-                                    sx={{ my: 3 }}
                                     onClick={() => setEditPasswordOpen(true)}
                                 >
                                     Editar Senha
@@ -136,6 +140,7 @@ export default function Profile() {
                         fullWidth
                         variant="outlined"
                         value={newName}
+                        sx={{ my: 2 }}
                         onChange={e => setNewName(e.target.value)}
                     />
                     <TextField
