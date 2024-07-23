@@ -3,8 +3,6 @@ import Image from 'next/image';
 import { Container, Typography, TextField, Button, Link, Alert } from '@mui/material';
 import { Box } from '@mui/system';
 import logoImg from '../../assets/logo.svg';
-import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
-import { auth } from '@/services/firebaseConfig';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -14,17 +12,10 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isPasswordValid, setIsPasswordValid] = useState(true);
-  const [
-    createUserWithEmailAndPassword,
-    user,
-    loading,
-    error,
-  ] = useCreateUserWithEmailAndPassword(auth);
 
   function handleRegister(e: FormEvent) {
     e.preventDefault();
     if (isEmailValid && isPasswordValid) {
-      createUserWithEmailAndPassword(email, password);
       toast.success("Registrado com sucesso!");
     } else {
       if (!email || !password) {
@@ -97,11 +88,6 @@ export default function Register() {
             variant="outlined"
             onChange={handlePasswordChange}
           />
-          {error && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              Erro: {error.message}
-            </Alert>
-          )}
           <Button
             type="submit"
             fullWidth

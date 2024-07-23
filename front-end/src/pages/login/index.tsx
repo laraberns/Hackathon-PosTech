@@ -6,7 +6,6 @@ import logoImg from '../../assets/logo.svg';
 import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { auth } from '@/services/firebaseConfig';
 import { useRouter } from 'next/router';
-import useFcmToken from '@/hooks/useFcmToken';
 
 export default function Login() {
   const router = useRouter();
@@ -19,30 +18,9 @@ export default function Login() {
     error,
   ] = useSignInWithEmailAndPassword(auth);
 
-  const { token } = useFcmToken();
-
-  async function storeFCMToken(userId: string, token: string) {
-    const url = `${process.env.BD_API}/fcm/store`;
-
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, token })
-    };
-
-    try {
-      await fetch(url, requestOptions);
-    } catch (error: any) {
-      console.error('Erro ao enviar token FCM:', error.message);
-    }
-  }
-
   function handleSignIn(e: FormEvent) {
     e.preventDefault();
     signInWithEmailAndPassword(email, password)
-      .then(() => {
-        token && storeFCMToken(token, email);
-      })
       .catch((error) => {
         console.error('Erro ao fazer login:', error);
       });
