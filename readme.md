@@ -100,7 +100,7 @@ npm run dev
 git clone https://github.com/laraberns/Hackathon-PosTech/back-end
  ```
 
-7. No Firebase Console, siga as etapas abaixo para configurar o serviço e as notificações:
+7. No Firebase Console, siga as etapas abaixo para configurar o serviço:
 - Acesse as Configurações do Projeto no Firebase Console.
 - Vá para Contas de Serviço e gere uma nova chave privada. Isso criará um arquivo JSON que você deve nomear como creds.json.
 - Coloque o arquivo creds.json na pasta raiz do projeto backend (back).
