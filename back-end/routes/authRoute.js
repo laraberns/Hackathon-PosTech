@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, forgotPassword, resetPassword, getUserDetails, listFavOngs, editProfile, updateUserType, validateToken, changePassword, addFavOng, deleteFavOng } = require('../controllers/authController');
+const { register, login, forgotPassword, resetPassword, getUserDetails, listFavOngs, editProfile, updateUserType, validateToken, changePassword, addFavOng, deleteFavOng, listAllUsers } = require('../controllers/authController');
 const authenticateJWT = require('../utils/authMiddleware');
 
 router.post('/register', register);
@@ -15,5 +15,6 @@ router.get('/validate', authenticateJWT, validateToken);
 router.post('/change-password', authenticateJWT, changePassword);
 router.post('/add-fav-ong', authenticateJWT, addFavOng);
 router.post('/delete-fav-ong', authenticateJWT, deleteFavOng);
+router.get('/users', authenticateJWT, listAllUsers);
 
 module.exports = router;

@@ -6,18 +6,9 @@ import { Box, GlobalStyles } from '@mui/material';
 import axios from 'axios';
 import Image from 'next/image';
 import logoImg from '../../assets/logo.png';
+import { ONG } from '@/components/Modal';
 
 const API_URL = `${process.env.BD_API}/ongs/allongs`;
-
-export interface ONG {
-    id: string;
-    name: string;
-    description: string;
-    city: string;
-    state: string;
-    area: string;
-    contact: string;
-}
 
 const Home: React.FC = () => {
     const [searchTerm, setSearchTerm] = React.useState('');

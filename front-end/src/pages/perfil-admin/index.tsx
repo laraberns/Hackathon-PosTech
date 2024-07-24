@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Typography, Button, Box, List, ListItem, ListItemText, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Grid, Collapse, IconButton, MenuItem, styled, GlobalStyles, Container } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Typography, Button, Box, List, ListItem, ListItemText, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Grid, Collapse, IconButton, MenuItem, GlobalStyles, Container } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -9,95 +9,296 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Image from 'next/image';
 import logoImg from '../../assets/logo.png';
 import Nav from '@/components/Nav';
+import axios from 'axios';
+import { states } from '@/utils/states';
+import { areaOptions } from '@/utils/areas';
+import { ONG } from '@/components/Modal';
+
+interface User {
+    userId: string;
+    email: string;
+    displayName: string;
+    typeUser: string;
+    userType: string;
+}
 
 export default function AdminProfile() {
     const [user, setUser] = useState({
-        name: 'John Doe',
-        email: 'johndoe@gmail.com',
+        displayName: '',
+        email: '',
+        typeUser: ''
     });
-    const [users, setUsers] = useState([
-        { id: 1, name: 'Usuário 1', type: 'Bronze' },
-        { id: 2, name: 'Usuário 2', type: 'Prata' },
-        { id: 3, name: 'Usuário 3', type: 'Ouro' },
-    ]);
+    const [users, setUsers] = useState<User[]>([]);
     const userTypes = ['Bronze', 'Prata', 'Ouro'];
-    const [ongs, setOngs] = useState([
-        {
-            id: 1,
-            name: 'ONG 1',
-            description: 'Descrição da ONG 1',
-            location: 'Localização da ONG 1',
-            area: 'Área de Atuação da ONG 1',
-            contact: 'Contato da ONG 1'
-        },
-        {
-            id: 2,
-            name: 'ONG 2',
-            description: 'Descrição da ONG 2',
-            location: 'Localização da ONG 2',
-            area: 'Área de Atuação da ONG 2',
-            contact: 'Contato da ONG 2'
-        },
-    ]);
-    const [newOng, setNewOng] = useState({ name: '', description: '', location: '', area: '', contact: '' });
-    const [selectedOng, setSelectedOng] = useState<{ id: number; name: string; description: string; location: string; area: string; contact: string } | null>(null);
+    const [ongs, setOngs] = useState<ONG[]>([]);
+    const [newOng, setNewOng] = useState<ONG>({
+        id: '',
+        name: '',
+        description: '',
+        city: '',
+        state: '',
+        area: '',
+        contact: '',
+        logoUrl: ''
+    });
+    const [selectedOng, setSelectedOng] = useState<ONG | null>(null);
     const [expandedOng, setExpandedOng] = useState<number | null>(null);
     const [addOngOpen, setAddOngOpen] = useState(false);
     const [editOngOpen, setEditOngOpen] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-    const [ongToDelete, setOngToDelete] = useState<number | null>(null);
+    const [ongToDelete, setOngToDelete] = useState<string | null>(null);
     const [editProfileOpen, setEditProfileOpen] = useState(false);
     const [editPasswordOpen, setEditPasswordOpen] = useState(false);
-    const [newName, setNewName] = useState(user.name);
+    const [newName, setNewName] = useState(user.displayName);
     const [newEmail, setNewEmail] = useState(user.email);
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
-    const [selectedUser, setSelectedUser] = useState<{ id: number; name: string; type: string } | null>(null);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [updateUserOpen, setUpdateUserOpen] = useState(false);
+    const [authenticated, setAuthenticated] = React.useState<boolean | null>(null);
 
-    function handleUpdateUserType() {
-        if (selectedUser) {
-            setUsers(users.map(user =>
-                user.id === selectedUser.id ? { ...user, type: selectedUser.type } : user
-            ));
-            setUpdateUserOpen(false);
-            setSelectedUser(null);
-            toast.success("Tipo de usuário atualizado com sucesso!");
+    const fetchUserDetails = async (token: string) => {
+        try {
+            const response = await axios.get(`${process.env.BD_API}/auth/user-details`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const userDetails = response.data;
+            setUser(userDetails);
+            setNewName(userDetails.displayName);
+            setNewEmail(userDetails.email);
+        } catch (err) {
+            console.error('Erro ao buscar os detalhes do usuário:', err);
+            toast.error("Erro ao carregar dados do usuário.");
+        }
+    };
+
+    const fetchUsers = async (token: string) => {
+        try {
+            const response = await axios.get(`${process.env.BD_API}/auth/users`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            console.log(response);
+            setUsers(response.data.users);
+        } catch (err) {
+            console.error('Erro ao buscar usuários:', err);
+            toast.error("Erro ao carregar lista de usuários.");
         }
     }
 
-    function openUpdateUserDialog(user: { id: number; name: string; type: string }) {
+    const fetchOngs = async (token: string) => {
+        try {
+            const response = await axios.get(`${process.env.BD_API}/ongs/allongs`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setOngs(response.data);
+        } catch (err) {
+            console.error('Erro ao buscar ONGs:', err);
+            toast.error("Erro ao carregar lista de ONGs.");
+        }
+    }
+
+    const deleteOng = async (id: string, token: string) => {
+        try {
+            await axios.delete(`${process.env.BD_API}/ongs/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            toast.success('ONG deletada com sucesso!');
+        } catch (err) {
+            toast.error('Erro ao deletar ONG.');
+        }
+    };
+
+    const editOng = async (id: string, updatedOng: ONG, token: string) => {
+        try {
+            await axios.patch(`${process.env.BD_API}/ongs/changeong`, { ...updatedOng }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+            toast.success('ONG atualizada com sucesso!');
+        } catch (err) {
+            console.error('Erro ao atualizar ONG:', err);
+            toast.error('Erro ao atualizar ONG.');
+        }
+    };
+
+    const addOng = async (newOng: ONG) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            toast.error('Token de autenticação não encontrado.');
+            return;
+        }
+
+        try {
+            await axios.post(`${process.env.BD_API}/ongs/addong`, newOng, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+            toast.success('ONG adicionada com sucesso!');
+        } catch (err) {
+            console.error('Erro ao adicionar ONG:', err);
+            toast.error('Erro ao adicionar ONG.');
+        }
+    };
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            fetchUserDetails(token);
+            fetchUsers(token);
+        }
+
+        const checkAuthentication = async () => {
+            const token = localStorage.getItem('token');
+        
+            try {
+                if (!token) {
+                    setAuthenticated(false);
+                    return;
+                }
+        
+                const response = await axios.get(`${process.env.BD_API}/auth/validate`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+        
+                if (response.status === 200) {
+                    const userData = response.data;
+    
+                    if (userData.user.typeUser === 'Admin') {
+                        setAuthenticated(true);
+                    } else {
+                        setAuthenticated(false);
+                    }
+                } else {
+                    setAuthenticated(false);
+                }
+            } catch (error) {
+                setAuthenticated(false);
+            }
+        };
+        
+
+        checkAuthentication();
+        token && fetchOngs(token);
+    }, []);
+
+    if (authenticated === null) {
+        return <p>Verificando autenticação...</p>;
+    }
+
+    if (!authenticated) {
+        window.location.href = '/login';
+        return null;
+    }
+
+    const handleUpdateButtonClick = () => {
+        selectedUser && handleUpdateUserType(
+            selectedUser,
+            setUsers,
+            users,
+            setUpdateUserOpen,
+            setSelectedUser
+        );
+    };
+
+    const updateUserType = async (userId: string, newUserType: string, token: string) => {
+        try {
+            await axios.put(`${process.env.BD_API}/auth/update-user-type`, {
+                userId,
+                newUserType
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+            toast.success('Tipo de usuário atualizado com sucesso!');
+        } catch (err) {
+            console.error('Erro ao atualizar tipo de usuário:', err);
+            toast.error('Erro ao atualizar tipo de usuário.');
+        }
+    };
+
+    const handleUpdateUserType = async (selectedUser: User, setUsers: React.Dispatch<React.SetStateAction<User[]>>, users: User[], setUpdateUserOpen: React.Dispatch<React.SetStateAction<boolean>>, setSelectedUser: React.Dispatch<React.SetStateAction<User | null>>) => {
+        const token = localStorage.getItem('token');
+
+        try {
+            token && await updateUserType(selectedUser?.userId, selectedUser.userType, token);
+            setUsers(prevUsers => 
+                prevUsers.map(user => 
+                    user.userId === selectedUser.userId ? { ...user, userType: selectedUser.userType } : user
+                )
+            );
+            console.log(users)
+            setUpdateUserOpen(false);
+            setSelectedUser(null);
+        } catch (error) {
+            console.error('Erro ao processar a atualização do tipo de usuário:', error);
+            toast.error('Erro ao atualizar tipo de usuário.');
+        }
+    };
+
+    function openUpdateUserDialog(user: User) {
         setSelectedUser(user);
         setUpdateUserOpen(true);
     }
 
-    function handleAddOng() {
-        setOngs([...ongs, { ...newOng, id: Date.now() }]);
-        setAddOngOpen(false);
-        setNewOng({ name: '', description: '', location: '', area: '', contact: '' });
-        toast.success("ONG adicionada com sucesso!");
-    }
+    const handleAddOng = async () => {
+        try {
+            newOng && await addOng(newOng);
+            setOngs([...ongs, { ...newOng }]);
+            setAddOngOpen(false);
+            setNewOng({ id: '', name: '', description: '', city: '', state: '', area: '', contact: '' });
+        } catch (error) {
+            console.error('Erro ao processar a adição da ONG:', error);
+            toast.error('Erro ao adicionar ONG.');
+        }
+    };
 
-    function handleEditOng() {
+    async function handleEditOng() {
         if (selectedOng) {
-            setOngs(ongs.map(ong =>
-                ong.id === selectedOng.id ? { ...selectedOng, ...newOng } : ong
-            ));
-            setEditOngOpen(false);
-            setSelectedOng(null);
-            setNewOng({ name: '', description: '', location: '', area: '', contact: '' });
-            toast.success("ONG atualizada com sucesso!");
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                toast.error('Token de autenticação não encontrado.');
+                return;
+            }
+
+            try {
+                newOng && await editOng(selectedOng.id, newOng, token);
+
+                setOngs(ongs.map(ong =>
+                    ong.id === selectedOng.id ? { ...selectedOng, ...newOng } : ong
+                ));
+                setEditOngOpen(false);
+                setSelectedOng(null);
+                setNewOng({ id: '', name: '', description: '', city: '', state: '', area: '', contact: '' });
+            } catch (error) {
+                console.error('Erro ao processar a atualização da ONG:', error);
+                toast.error('Erro ao atualizar ONG.');
+            }
         }
     }
 
-    function handleDeleteOng(id: number) {
+    function handleDeleteOng(id: string) {
+        const token = localStorage.getItem('token');
+        token && deleteOng(id, token);
         setOngs(ongs.filter(ong => ong.id !== id));
         setConfirmDeleteOpen(false);
-        toast.success("ONG removida com sucesso!");
     }
 
-    function openConfirmDeleteDialog(id: number) {
+    function openConfirmDeleteDialog(id: string) {
         setOngToDelete(id);
         setConfirmDeleteOpen(true);
     }
@@ -107,21 +308,51 @@ export default function AdminProfile() {
         setOngToDelete(null);
     }
 
-    function handleEditProfile() {
-        setUser({ ...user, name: newName, email: newEmail });
-        setEditProfileOpen(false);
-        toast.success("Perfil atualizado com sucesso!");
-    }
+    const handleEditProfile = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            await axios.put(
+                `${process.env.BD_API}/auth/edit-profile`,
+                { email: newEmail, displayName: newName },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+            setUser({ ...user, displayName: newName, email: newEmail });
+            setEditProfileOpen(false);
+            toast.success("Perfil atualizado com sucesso!");
+        } catch (err: any) {
+            console.error('Erro ao atualizar perfil:', err);
+            if (err.response && err.response.data && err.response.data.error) {
+                toast.error(err.response.data.error);
+            } else {
+                toast.error("Erro ao atualizar perfil.");
+            }
+        }
+    };
 
-    function handleEditPassword() {
+    const handleEditPassword = async () => {
         if (newPassword !== confirmNewPassword) {
             toast.error("As senhas não coincidem.");
             return;
         }
-        // Implementar lógica de atualização de senha aqui
-        setEditPasswordOpen(false);
-        toast.success("Senha atualizada com sucesso!");
-    }
+
+        const token = localStorage.getItem('token');
+        try {
+            await axios.post(
+                `${process.env.BD_API}/auth/change-password`,
+                { currentPassword, newPassword },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+            setEditPasswordOpen(false);
+            toast.success("Senha atualizada com sucesso!");
+        } catch (err: any) {
+            console.error('Erro ao atualizar senha:', err);
+            if (err.response && err.response.data && err.response.data.error) {
+                toast.error(err.response.data.error);
+            } else {
+                toast.error("Erro ao atualizar senha.");
+            }
+        }
+    };
 
     return (
         <>
@@ -160,7 +391,7 @@ export default function AdminProfile() {
                                     Informações Pessoais
                                 </Typography>
                                 <Typography variant="body1">
-                                    Nome: <span style={{ fontWeight: 'bold' }}>{user.name}</span>
+                                    Nome: <span style={{ fontWeight: 'bold' }}>{user.displayName}</span>
                                 </Typography>
                                 <Typography variant="body1">
                                     E-mail: <span style={{ fontWeight: 'bold' }}>{user.email}</span>
@@ -183,44 +414,53 @@ export default function AdminProfile() {
                                 <Typography variant="h6">
                                     ONGs Cadastradas
                                 </Typography>
-                                <List>
-                                    {ongs.map((ong, index) => (
-                                        <ListItem key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', border: '1px solid grey', borderRadius: 3, mb: 2, padding: '10px 0 0 10px' }}>
-                                            <ListItemText
-                                                primary={ong.name}
-                                                secondary={ong.description}
-                                            />
-                                            <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center' }}>
-                                                <IconButton onClick={() => {
-                                                    setSelectedOng(ong);
-                                                    setNewOng({
-                                                        name: ong.name,
-                                                        description: ong.description,
-                                                        location: ong.location,
-                                                        area: ong.area,
-                                                        contact: ong.contact
-                                                    });
-                                                    setEditOngOpen(true);
-                                                }}>
-                                                    <EditIcon />
-                                                </IconButton>
-                                                <IconButton onClick={() => openConfirmDeleteDialog(ong.id)}>
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                                <IconButton
-                                                    onClick={() => setExpandedOng(expandedOng === index ? null : index)}
-                                                >
-                                                    {expandedOng === index ? <RemoveCircleOutlineIcon /> : <AddCircleOutlineIcon />}
-                                                </IconButton>
-                                            </Box>
-                                            <Collapse in={expandedOng === index}>
-                                                <Typography variant="body2" sx={{ mb: 1 }}><strong>Localização:</strong> {ong.location}</Typography>
-                                                <Typography variant="body2" sx={{ mb: 1 }}><strong>Área de Atuação:</strong> {ong.area}</Typography>
-                                                <Typography variant="body2" sx={{ mb: 1 }}><strong>Contato:</strong> {ong.contact}</Typography>
-                                            </Collapse>
-                                        </ListItem>
-                                    ))}
-                                </List>
+                                {ongs.length === 0 ? (
+                                    <Typography variant="body1" sx={{ my: 2 }}>
+                                        Não há ONGs cadastradas.
+                                    </Typography>
+                                ) : (
+                                    <List>
+                                        {ongs.map((ong, index) => (
+                                            <ListItem key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', border: '1px solid grey', borderRadius: 3, mb: 2, padding: '10px 0 0 10px' }}>
+                                                <ListItemText
+                                                    primary={ong.name}
+                                                    secondary={ong.description}
+                                                />
+                                                <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center' }}>
+                                                    <IconButton onClick={() => {
+                                                        setSelectedOng(ong);
+                                                        setNewOng({
+                                                            id: ong.id,
+                                                            name: ong.name,
+                                                            description: ong.description,
+                                                            city: ong.city,
+                                                            state: ong.state,
+                                                            area: ong.area,
+                                                            contact: ong.contact
+                                                        });
+                                                        setEditOngOpen(true);
+                                                    }}>
+                                                        <EditIcon />
+                                                    </IconButton>
+                                                    <IconButton onClick={() => openConfirmDeleteDialog(ong.id)}>
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                    <IconButton
+                                                        onClick={() => setExpandedOng(expandedOng === index ? null : index)}
+                                                    >
+                                                        {expandedOng === index ? <RemoveCircleOutlineIcon /> : <AddCircleOutlineIcon />}
+                                                    </IconButton>
+                                                </Box>
+                                                <Collapse in={expandedOng === index}>
+                                                    <Typography variant="body2" sx={{ mb: 1 }}><strong>Cidade:</strong> {ong.city}</Typography>
+                                                    <Typography variant="body2" sx={{ mb: 1 }}><strong>Estado:</strong> {ong.state}</Typography>
+                                                    <Typography variant="body2" sx={{ mb: 1 }}><strong>Área de Atuação:</strong> {ong.area}</Typography>
+                                                    <Typography variant="body2" sx={{ mb: 1 }}><strong>Contato:</strong> {ong.contact}</Typography>
+                                                </Collapse>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                )}
                                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', my: 2 }}>
                                     <Button
                                         variant="contained"
@@ -231,16 +471,17 @@ export default function AdminProfile() {
                                     </Button>
                                 </Box>
                             </Box>
+
                         </Grid>
                     </Grid>
                     <Box sx={{ backgroundColor: "#EEEEEE", padding: "20px", borderRadius: "20px" }}>
                         <Typography variant="h6">Gerenciamento de Usuários</Typography>
                         <List>
                             {users.map(user => (
-                                <ListItem key={user.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid grey', borderRadius: 3, mb: 2, padding: '10px' }}>
+                                <ListItem key={user.userId} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid grey', borderRadius: 3, mb: 2, padding: '10px' }}>
                                     <ListItemText
-                                        primary={user.name}
-                                        secondary={`Tipo: ${user.type}`}
+                                        primary={user.displayName}
+                                        secondary={`Tipo: ${user.userType}`}
                                     />
                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                         <IconButton
@@ -269,7 +510,7 @@ export default function AdminProfile() {
                         label="Nome"
                         fullWidth
                         variant="outlined"
-                        value={newOng.name}
+                        value={newOng?.name}
                         onChange={e => setNewOng({ ...newOng, name: e.target.value })}
                         sx={{ my: 1 }}
                     />
@@ -278,34 +519,57 @@ export default function AdminProfile() {
                         label="Descrição"
                         fullWidth
                         variant="outlined"
-                        value={newOng.description}
+                        value={newOng?.description}
                         onChange={e => setNewOng({ ...newOng, description: e.target.value })}
                         sx={{ mb: 1 }}
                     />
                     <TextField
                         margin="dense"
-                        label="Localização"
+                        label="Cidade"
                         fullWidth
                         variant="outlined"
-                        value={newOng.location}
-                        onChange={e => setNewOng({ ...newOng, location: e.target.value })}
+                        value={newOng?.city}
+                        onChange={e => setNewOng({ ...newOng, city: e.target.value })}
                         sx={{ mb: 1 }}
                     />
                     <TextField
                         margin="dense"
-                        label="Área de Atuação"
+                        label="Estado"
                         fullWidth
                         variant="outlined"
-                        value={newOng.area}
-                        onChange={e => setNewOng({ ...newOng, area: e.target.value })}
+                        value={newOng?.state}
+                        onChange={e => setNewOng({ ...newOng, state: e.target.value })}
+                        select
                         sx={{ mb: 1 }}
-                    />
+                    >
+                        {states.map((estado) => (
+                            <MenuItem key={estado.code} value={estado.code}>
+                                {estado.name}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+                    <TextField
+                        margin="dense"
+                        label="Área de atuação"
+                        fullWidth
+                        variant="outlined"
+                        value={newOng?.area}
+                        onChange={e => setNewOng({ ...newOng, area: e.target.value })}
+                        select
+                        sx={{ mb: 1 }}
+                    >
+                        {areaOptions.map((area) => (
+                            <MenuItem key={area} value={area}>
+                                {area}
+                            </MenuItem>
+                        ))}
+                    </TextField>
                     <TextField
                         margin="dense"
                         label="Contato"
                         fullWidth
                         variant="outlined"
-                        value={newOng.contact}
+                        value={newOng?.contact}
                         onChange={e => setNewOng({ ...newOng, contact: e.target.value })}
                     />
                 </DialogContent>
@@ -328,7 +592,7 @@ export default function AdminProfile() {
                         label="Nome"
                         fullWidth
                         variant="outlined"
-                        value={newOng.name}
+                        value={newOng?.name}
                         onChange={e => setNewOng({ ...newOng, name: e.target.value })}
                         sx={{ my: 1 }}
                     />
@@ -337,34 +601,57 @@ export default function AdminProfile() {
                         label="Descrição"
                         fullWidth
                         variant="outlined"
-                        value={newOng.description}
+                        value={newOng?.description}
                         onChange={e => setNewOng({ ...newOng, description: e.target.value })}
                         sx={{ mb: 1 }}
                     />
                     <TextField
                         margin="dense"
-                        label="Localização"
+                        label="Cidade"
                         fullWidth
                         variant="outlined"
-                        value={newOng.location}
-                        onChange={e => setNewOng({ ...newOng, location: e.target.value })}
+                        value={newOng?.city}
+                        onChange={e => setNewOng({ ...newOng, city: e.target.value })}
                         sx={{ mb: 1 }}
                     />
                     <TextField
                         margin="dense"
-                        label="Área de Atuação"
+                        label="Estado"
                         fullWidth
                         variant="outlined"
-                        value={newOng.area}
-                        onChange={e => setNewOng({ ...newOng, area: e.target.value })}
+                        value={newOng?.state}
+                        onChange={e => setNewOng({ ...newOng, state: e.target.value })}
+                        select
                         sx={{ mb: 1 }}
-                    />
+                    >
+                        {states.map((estado) => (
+                            <MenuItem key={estado.code} value={estado.code}>
+                                {estado.name}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+                    <TextField
+                        margin="dense"
+                        label="Área de atuação"
+                        fullWidth
+                        variant="outlined"
+                        value={newOng?.area}
+                        onChange={e => setNewOng({ ...newOng, area: e.target.value })}
+                        select
+                        sx={{ mb: 1 }}
+                    >
+                        {areaOptions.map((area) => (
+                            <MenuItem key={area} value={area}>
+                                {area}
+                            </MenuItem>
+                        ))}
+                    </TextField>
                     <TextField
                         margin="dense"
                         label="Contato"
                         fullWidth
                         variant="outlined"
-                        value={newOng.contact}
+                        value={newOng?.contact}
                         onChange={e => setNewOng({ ...newOng, contact: e.target.value })}
                     />
                 </DialogContent>
@@ -484,8 +771,8 @@ export default function AdminProfile() {
                         select
                         label="Tipo"
                         fullWidth
-                        value={selectedUser?.type || ''}
-                        onChange={e => setSelectedUser({ ...selectedUser!, type: e.target.value })}
+                        value={selectedUser?.userType || ''}
+                        onChange={e => setSelectedUser({ ...selectedUser!, userType: e.target.value })}
                         variant="outlined"
                         sx={{ mt: 2 }}
                     >
@@ -498,7 +785,7 @@ export default function AdminProfile() {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setUpdateUserOpen(false)}>Cancelar</Button>
-                    <Button onClick={handleUpdateUserType}>Salvar</Button>
+                    <Button onClick={handleUpdateButtonClick}>Salvar</Button>
                 </DialogActions>
             </Dialog>
         </>

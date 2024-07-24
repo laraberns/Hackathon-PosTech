@@ -374,6 +374,23 @@ exports.deleteFavOng = async (req, res) => {
   }
 };
 
+// Controlador para listar todos os usuários do tipo 'User'
+exports.listAllUsers = async (req, res) => {
+  try {
+    const usersSnapshot = await db.collection('users').where('typeUser', '==', 'User').get();
+
+    if (usersSnapshot.empty) {
+      return res.status(404).json({ message: 'Nenhum usuário encontrado.' });
+    }
+
+    const users = usersSnapshot.docs.map(doc => doc.data());
+
+    res.status(200).json({ users });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar usuários', details: error.message });
+  }
+};
+
 
 
 
