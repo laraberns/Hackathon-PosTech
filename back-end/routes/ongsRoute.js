@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ongsControllers = require('../controllers/ongsController');
-const authenticateJWT = require('../middlewares/authMiddleware');
+const authenticateJWT = require('../utils/authMiddleware');
 
 router.get('/allongs', authenticateJWT, ongsControllers.getONGs);
 router.get('/:id', authenticateJWT, ongsControllers.getONGById);

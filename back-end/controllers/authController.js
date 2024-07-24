@@ -2,8 +2,10 @@
 const { db } = require('../firebase.js');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+const isStrongPassword = require('../utils/strongPassword.js');
+require("dotenv").config()
 
 const SECRET_KEY = 'your-secret-key';
 
@@ -54,6 +56,10 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: 'Usuário já registrado' });
     }
 
+    if (!isStrongPassword(password)) {
+      return res.status(400).json({ error: 'A senha deve ter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const usersRef = db.collection('users');
     const userId = uuidv4();
@@ -69,53 +75,14 @@ exports.register = async (req, res) => {
 
     res.status(201).json({ message: 'Usuário registrado com sucesso', user: newUserRef.id });
   } catch (error) {
-    console.error('Erro ao registrar usuário:', error);
     res.status(400).json({ error: error.message });
   }
 };
 
-
-//PRECISA VALIDAR
-// Controlador para recuperação de senha
-exports.resetPassword = async (req, res) => {
-  const { email } = req.body;
-  try {
-    await auth.generatePasswordResetLink(email);
-    res.status(200).json({ message: 'Link de recuperação de senha enviado' });
-  } catch (error) {
-    console.error('Erro ao enviar link de recuperação de senha:', error);
-    res.status(400).json({ error: error.message });
-  }
-};
-
-
-// Configuração do transporte de email
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'seuemail@gmail.com',
-    pass: 'suasenha'
-  }
-});
-
-//PRECISA VALIDAR
-// Função para enviar email de recuperação de senha
-const sendPasswordResetEmail = (email, resetToken) => {
-  const resetUrl = `http://seusite.com/reset-password?token=${resetToken}`;
-  const mailOptions = {
-    from: 'seuemail@gmail.com',
-    to: email,
-    subject: 'Redefinição de senha',
-    text: `Clique no link para redefinir sua senha: ${resetUrl}`
-  };
-
-  return transporter.sendMail(mailOptions);
-};
-
-//PRECISA VALIDAR
 // Controlador para solicitar redefinição de senha
 exports.forgotPassword = async (req, res) => {
   const { email } = req.body;
+
   try {
     const userSnapshot = await db.collection('users').where('email', '==', email).get();
 
@@ -123,42 +90,75 @@ exports.forgotPassword = async (req, res) => {
       return res.status(400).json({ error: 'Usuário não encontrado' });
     }
 
-    const resetToken = uuidv4();
-    const userRef = userSnapshot.docs[0].ref;
-    await userRef.update({ resetToken });
+    const user = userSnapshot.docs[0];
+    const token = uuidv4();
 
-    await sendPasswordResetEmail(email, resetToken);
-    res.status(200).json({ message: 'Email de redefinição de senha enviado' });
-  } catch (error) {
-    console.error('Erro ao solicitar redefinição de senha:', error);
-    res.status(400).json({ error: error.message });
-  }
-};
+    await db.collection('users').doc(user.id).update({ resetToken: token });
 
-//PRECISA VALIDAR
-// Controlador para redefinir senha
-exports.resetPassword = async (req, res) => {
-  const { token, newPassword } = req.body;
-  try {
-    const userSnapshot = await db.collection('users').where('resetToken', '==', token).get();
-
-    if (userSnapshot.empty) {
-      return res.status(400).json({ error: 'Token inválido' });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const userRef = userSnapshot.docs[0].ref;
-    await userRef.update({
-      password: hashedPassword,
-      resetToken: null // Remova o token de redefinição após o uso
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.SENHAEMAIL1 + ' ' + process.env.SENHAEMAIL2 + ' ' + process.env.SENHAEMAIL3 + ' ' + process.env.SENHAEMAIL4
+      },
     });
 
-    res.status(200).json({ message: 'Senha redefinida com sucesso' });
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: 'Redefinir Senha',
+      text: `Seu token de definição é: ${token}`,
+    };
+
+    transporter.sendMail(mailOptions, function (error) {
+      if (error) {
+        return res.json({ message: "Erro ao enviar email", error });
+      } else {
+        return res.json({ status: true, message: "Email enviado" });
+      }
+    });
+
   } catch (error) {
-    console.error('Erro ao redefinir senha:', error);
-    res.status(400).json({ error: error.message });
+    return res.status(500).json({ error: 'Erro no servidor' });
   }
 };
+
+// Controlador para recuperação de senha
+exports.resetPassword = async (req, res) => {
+  const { email, token, newPassword } = req.body;
+
+  try {
+    const userSnapshot = await db.collection('users').where('email', '==', email).get();
+
+    if (userSnapshot.empty) {
+      return res.status(400).json({ error: 'Usuário não encontrado' });
+    }
+
+    const user = userSnapshot.docs[0].data();
+
+    if (user.resetToken !== token) {
+      return res.status(400).json({ error: 'Token inválido ou expirado' });
+    }
+
+    if (!isStrongPassword(newPassword)) {
+      return res.status(400).json({ error: 'A senha deve ter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.' });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password in the database
+    await db.collection('users').doc(userSnapshot.docs[0].id).update({ 
+      password: hashedPassword,
+    });
+
+    return res.json({ status: true, message: 'Senha redefinida com sucesso' });
+
+  } catch (error) {
+    return res.status(500).json({ error: 'Erro no servidor' });
+  }
+};
+
 
 // Rota protegida para obter detalhes do usuário
 exports.getUserDetails = async (req, res) => {
@@ -172,7 +172,6 @@ exports.getUserDetails = async (req, res) => {
     const user = userSnapshot.docs[0].data();
     res.status(200).json({ email: user.email, displayName: user.displayName });
   } catch (error) {
-    console.error('Erro ao obter detalhes do usuário:', error);
     res.status(400).json({ error: error.message });
   }
 };
@@ -189,7 +188,6 @@ exports.listFavOngs = async (req, res) => {
     const user = userSnapshot.docs[0].data();
     res.status(200).json({ favOngs: user.favOngs });
   } catch (error) {
-    console.error('Erro ao obter ONGs favoritas do usuário:', error);
     res.status(400).json({ error: error.message });
   }
 };
@@ -197,7 +195,7 @@ exports.listFavOngs = async (req, res) => {
 // Controlador para editar o perfil do usuário
 exports.editProfile = async (req, res) => {
   const { displayName, email, password } = req.body;
-  
+
   try {
     const userSnapshot = await db.collection('users').where('userId', '==', req.user.userId).get();
 
@@ -227,7 +225,6 @@ exports.editProfile = async (req, res) => {
 
     res.status(200).json({ message: 'Perfil atualizado com sucesso' });
   } catch (error) {
-    console.error('Erro ao atualizar perfil:', error);
     res.status(400).json({ error: error.message });
   }
 };
@@ -253,7 +250,6 @@ exports.updateUserType = async (req, res) => {
 
     res.status(200).json({ message: 'Rótulo do usuário atualizado com sucesso' });
   } catch (error) {
-    console.error('Erro ao atualizar rótulo do usuário:', error);
     res.status(400).json({ error: error.message });
   }
 };
