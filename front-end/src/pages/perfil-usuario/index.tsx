@@ -9,6 +9,7 @@ import Image from 'next/image';
 import Nav from '@/components/Nav';
 import axios from 'axios';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { ONG } from '../home';
 
 export default function ProfileUser() {
     const [user, setUser] = useState({
@@ -16,7 +17,7 @@ export default function ProfileUser() {
         email: '',
         typeUser: ''
     });
-    const [ongs, setOngs] = useState([]);
+    const [ongs, setOngs] = useState<ONG[]>([]);
     const [editProfileOpen, setEditProfileOpen] = useState(false);
     const [editPasswordOpen, setEditPasswordOpen] = useState(false);
     const [newName, setNewName] = useState(user.displayName);
@@ -25,8 +26,9 @@ export default function ProfileUser() {
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
     const [expandedOng, setExpandedOng] = useState<number | null>(null);
-    const [allOngs, setAllOngs] = useState([]);
+    const [allOngs, setAllOngs] = useState<ONG[]>([]);
     const [selectedOng, setSelectedOng] = useState('');
+    const [authenticated, setAuthenticated] = React.useState<boolean | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -35,7 +37,40 @@ export default function ProfileUser() {
             fetchFavOngs(token)
             fetchOngs(token);
         }
+
+        const checkAuthentication = async () => {
+            try {
+                if (!token) {
+                    setAuthenticated(false);
+                    return;
+                }
+
+                const response = await axios.get(`${process.env.BD_API}/auth/validate`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    setAuthenticated(true)
+                }
+            } catch (error) {
+                setAuthenticated(false);
+            }
+        };
+
+        checkAuthentication();
     }, []);
+
+    
+    if (authenticated === null) {
+        return <p>Verificando autenticação...</p>;
+    }
+
+    if (!authenticated) {
+        window.location.href = '/login';
+        return null;
+    }
 
     const fetchOngs = async (token: string) => {
         try {
@@ -69,7 +104,7 @@ export default function ProfileUser() {
         }
     };
 
-    const handleRemoveFavOng = async (ongName: number) => {
+    const handleRemoveFavOng = async (ongName: string) => {
         const token = localStorage.getItem('token');
         try {
             await axios.post(
