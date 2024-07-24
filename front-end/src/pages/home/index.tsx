@@ -115,7 +115,7 @@ const Home: React.FC = () => {
             <Nav />
             <Container>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2, mb: 4 }}>
-                    <Image src={logoImg} alt="Workflow" width={200} />
+                    <Image src={logoImg} alt="Image of logo" width={150} />
                 </Box>
                 <Title>ONGS Cadastradas</Title>
                 <Search>

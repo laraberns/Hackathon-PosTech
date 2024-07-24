@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Typography, Button, Box, List, ListItem, ListItemText, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Grid, Collapse, IconButton, MenuItem } from '@mui/material';
-import { Global } from '@emotion/react';
-import { globalStyles } from '@/styles/backgroundStyle';
+import { Typography, Button, Box, List, ListItem, ListItemText, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, Grid, Collapse, IconButton, MenuItem, styled, GlobalStyles, Container } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -10,6 +8,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Image from 'next/image';
 import logoImg from '../../assets/logo.png';
+import Nav from '@/components/Nav';
 
 export default function AdminProfile() {
     const [user, setUser] = useState({
@@ -126,19 +125,37 @@ export default function AdminProfile() {
 
     return (
         <>
-            <Global styles={globalStyles} />
+            <GlobalStyles
+                styles={{
+                    html: {
+                        height: '100%',
+                        width: '100%',
+                        overflow: 'scroll',
+                    },
+                    body: {
+                        height: '100%',
+                        width: '100%',
+                        overflow: 'auto',
+                        margin: 0,
+                        padding: 0,
+                        boxSizing: 'border-box',
+                        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+                    },
+                }}
+            />
+            <Nav />
             <Container maxWidth="md">
                 <ToastContainer />
-                <Box sx={{ mt: 5, backgroundColor: "white", padding: "20px", borderRadius: "20px" }}>
+                <Box sx={{ mt: 1, backgroundColor: "white", padding: "20px", borderRadius: "20px" }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                        <Image src={logoImg} alt="Workflow" width={150} />
-                        <Typography variant="h4">
+                        <Image src={logoImg} alt="Image of logo" width={150} />
+                        <Typography variant="h5" >
                             Meu Perfil
                         </Typography>
                     </Box>
                     <Grid container spacing={2} sx={{ mt: 1 }}>
                         <Grid item xs={12}>
-                            <Box sx={{ backgroundColor: "lightgrey", padding: "20px", borderRadius: "20px", mb: 2 }}>
+                            <Box sx={{ backgroundColor: "#EEEEEE", padding: "20px", borderRadius: "20px", mb: 2 }}>
                                 <Typography variant="h6" sx={{ mb: 2 }}>
                                     Informações Pessoais
                                 </Typography>
@@ -162,7 +179,7 @@ export default function AdminProfile() {
                                     Editar Senha
                                 </Button>
                             </Box>
-                            <Box sx={{ backgroundColor: "lightgrey", padding: "20px", borderRadius: "20px", my: 2 }}>
+                            <Box sx={{ backgroundColor: "#EEEEEE", padding: "20px", borderRadius: "20px", my: 2 }}>
                                 <Typography variant="h6">
                                     ONGs Cadastradas
                                 </Typography>
@@ -205,18 +222,18 @@ export default function AdminProfile() {
                                     ))}
                                 </List>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', my: 2 }}>
-                                <Button
-                                    variant="contained"
-                                    startIcon={<AddCircleOutlineIcon />}
-                                    onClick={() => setAddOngOpen(true)}
-                                >
-                                    Adicionar ONG
-                                </Button>
-                            </Box>
+                                    <Button
+                                        variant="contained"
+                                        startIcon={<AddCircleOutlineIcon />}
+                                        onClick={() => setAddOngOpen(true)}
+                                    >
+                                        Adicionar ONG
+                                    </Button>
+                                </Box>
                             </Box>
                         </Grid>
                     </Grid>
-                    <Box sx={{ backgroundColor: "lightgrey", padding: "20px", borderRadius: "20px" }}>
+                    <Box sx={{ backgroundColor: "#EEEEEE", padding: "20px", borderRadius: "20px" }}>
                         <Typography variant="h6">Gerenciamento de Usuários</Typography>
                         <List>
                             {users.map(user => (
@@ -470,7 +487,7 @@ export default function AdminProfile() {
                         value={selectedUser?.type || ''}
                         onChange={e => setSelectedUser({ ...selectedUser!, type: e.target.value })}
                         variant="outlined"
-                        sx={{mt: 2}}
+                        sx={{ mt: 2 }}
                     >
                         {userTypes.map(type => (
                             <MenuItem key={type} value={type}>
