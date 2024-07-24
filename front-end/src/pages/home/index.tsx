@@ -3,7 +3,6 @@ import Table from '../../components/Table';
 import { styled } from '@mui/system';
 import Nav from '@/components/Nav';
 import { GlobalStyles } from '@mui/material';
-import { Padding } from '@mui/icons-material';
 
 // MOCK - Depois alterar para chamada da API
 const data = [
@@ -67,10 +66,6 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-
-const color = {
-    1: '#FED8D0',
-}
 
 // ESTILOS
 const Container = styled('div')({

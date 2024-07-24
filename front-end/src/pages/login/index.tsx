@@ -12,7 +12,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState('initial'); // Novo estado para controle de etapa
+  const [step, setStep] = useState('initial');
   const [recoveryCode, setRecoveryCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -95,7 +95,7 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch('http://localhost:8383/auth/reset-password', {
+      const response = await fetch(`${process.env.BD_API}/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
