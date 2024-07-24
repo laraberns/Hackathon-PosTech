@@ -7,12 +7,13 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 
-interface ONG {
+export interface ONG {
+  id: string;
   name: string;
   description: string;
   city: string;
   state: string;
-  areaOfExpertise: string;
+  area: string;
   contact: string;
   logoUrl?: string;
 }
@@ -65,7 +66,7 @@ const CustomModal: React.FC<ModalProps> = ({ open, onClose, ong }) => {
                   <strong>Descrição:</strong> {ong.description}<br />
                   <strong>Cidade:</strong> {ong.city}<br />
                   <strong>Estado:</strong> {ong.state}<br />
-                  <strong>Área de Atuação:</strong> {ong.areaOfExpertise}<br />
+                  <strong>Área de Atuação:</strong> {ong.area}<br />
                   <strong>Contato:</strong> {ong.contact}<br />
                 </Typography>
               </>

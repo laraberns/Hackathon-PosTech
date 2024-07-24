@@ -5,7 +5,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const isStrongPassword = require('../utils/strongPassword.js');
-const authenticateJWT = require('../utils/authMiddleware.js');
 require("dotenv").config()
 
 const SECRET_KEY = 'your-secret-key';
@@ -177,9 +176,10 @@ exports.getUserDetails = async (req, res) => {
   }
 };
 
-// Controlador para listar ONGs favoritas do usuário
+// Controlador para listar ONGs favoritas do usuário com todas as características
 exports.listFavOngs = async (req, res) => {
   try {
+    // Recupera o usuário
     const userSnapshot = await db.collection('users').where('userId', '==', req.user.userId).get();
 
     if (userSnapshot.empty) {
@@ -187,11 +187,28 @@ exports.listFavOngs = async (req, res) => {
     }
 
     const user = userSnapshot.docs[0].data();
-    res.status(200).json({ favOngs: user.favOngs });
+    const favOngsNames = user.favOngs || [];
+
+    // Se não houver ONGs favoritas, retorna uma lista vazia
+    if (favOngsNames.length === 0) {
+      return res.status(200).json({ favOngs: [] });
+    }
+
+    // Recupera todas as ONGs favoritas pelo nome
+    const ongsSnapshot = await db.collection('ongs').where('name', 'in', favOngsNames).get();
+
+    if (ongsSnapshot.empty) {
+      return res.status(400).json({ error: 'Nenhuma ONG encontrada' });
+    }
+
+    const favOngs = ongsSnapshot.docs.map(doc => doc.data());
+
+    res.status(200).json({ favOngs });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
+
 
 // Controlador para editar o perfil do usuário
 exports.editProfile = async (req, res) => {
@@ -259,6 +276,123 @@ exports.updateUserType = async (req, res) => {
 exports.validateToken = (req, res) => {
   res.status(200).json({ message: 'Token é válido', user: req.user });
 };
+
+// Controlador para alterar a senha do usuário autenticado
+exports.changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    const userSnapshot = await db.collection('users').where('userId', '==', req.user.userId).get();
+
+    if (userSnapshot.empty) {
+      return res.status(400).json({ error: 'Usuário não encontrado' });
+    }
+
+    const user = userSnapshot.docs[0].data();
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: 'Senha atual incorreta' });
+    }
+
+    if (!isStrongPassword(newPassword)) {
+      return res.status(400).json({ error: 'A senha deve ter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.collection('users').doc(userSnapshot.docs[0].id).update({ 
+      password: hashedPassword,
+    });
+
+    res.status(200).json({ message: 'Senha alterada com sucesso' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro no servidor' });
+  }
+};
+
+// Controlador para adicionar ONG como favoritada pelo nome
+exports.addFavOng = async (req, res) => {
+  const { ongName } = req.body; // Alterado de ongId para ongName
+
+  try {
+    // Recupera o usuário
+    const userSnapshot = await db.collection('users').where('userId', '==', req.user.userId).get();
+
+    if (userSnapshot.empty) {
+      return res.status(400).json({ error: 'Usuário não encontrado' });
+    }
+
+    const userRef = userSnapshot.docs[0].ref;
+    const userData = userSnapshot.docs[0].data();
+    const favOngs = userData.favOngs || [];
+
+    // Verifica se a ONG já está favoritada
+    if (favOngs.includes(ongName)) {
+      return res.status(400).json({ error: 'ONG já está favoritada' });
+    }
+
+    // Adiciona o nome da ONG à lista de ONGs favoritas
+    favOngs.push(ongName);
+    await userRef.update({ favOngs });
+
+    res.status(200).json({ message: 'ONG favoritada com sucesso' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
+// Controlador para deletar ONG favoritada
+exports.deleteFavOng = async (req, res) => {
+  const { ongName } = req.body;
+
+  try {
+    // Obter a referência do usuário
+    const userSnapshot = await db.collection('users').where('userId', '==', req.user.userId).get();
+
+    if (userSnapshot.empty) {
+      return res.status(400).json({ error: 'Usuário não encontrado' });
+    }
+
+    const userRef = userSnapshot.docs[0].ref;
+    const userData = userSnapshot.docs[0].data();
+    const favOngs = userData.favOngs || [];
+
+    // Verifica se a ONG está favoritada
+    if (!favOngs.includes(ongName)) {
+      return res.status(400).json({ error: 'ONG não está favoritada' });
+    }
+
+    // Remove o nome da ONG da lista de ONGs favoritas
+    const updatedFavOngs = favOngs.filter(name => name !== ongName);
+    await userRef.update({ favOngs: updatedFavOngs });
+
+    res.status(200).json({ message: 'ONG desfavoritada com sucesso' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro no servidor' });
+  }
+};
+
+// Controlador para listar todos os usuários do tipo 'User'
+exports.listAllUsers = async (req, res) => {
+  try {
+    const usersSnapshot = await db.collection('users').where('typeUser', '==', 'User').get();
+
+    if (usersSnapshot.empty) {
+      return res.status(404).json({ message: 'Nenhum usuário encontrado.' });
+    }
+
+    const users = usersSnapshot.docs.map(doc => doc.data());
+
+    res.status(200).json({ users });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar usuários', details: error.message });
+  }
+};
+
+
+
 
 
 
