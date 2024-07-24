@@ -2,30 +2,94 @@ import * as React from 'react';
 import Table from '../../components/Table';
 import { styled } from '@mui/system';
 import Nav from '@/components/Nav';
-import { GlobalStyles } from '@mui/material';
+import { Box, GlobalStyles } from '@mui/material';
+import axios from 'axios';
+import Image from 'next/image';
+import logoImg from '../../assets/logo.png';
 
-// MOCK - Depois alterar para chamada da API
-const data = [
-    { name: 'OllllllllllllllllllNG 1', description: 'Descrikkkkkkkkkkkkkkkkkkkkkkkção 1', city: 'Cidkkkkkkkkkkkade 1', state: 'Estado 1', areaOfExpertise: 'Educação', contact: 'Contato 1' },
-    { name: 'ONG 2', description: 'Descrição 2', city: 'Cidade 2', state: 'Estado 2', areaOfExpertise: 'Saúde', contact: 'Contato 2' },
-    { name: 'ONG 3', description: 'Descrição 3', city: 'Cidade 3', state: 'Estado 3', areaOfExpertise: 'Tecnologia', contact: 'Contato 3' },
-    { name: 'ONG 4', description: 'Descrição 4', city: 'Cidade 4', state: 'Estado 4', areaOfExpertise: 'Meio Ambiente', contact: 'Contato 4' },
-    { name: 'ONG 5', description: 'Descrição 5', city: 'Cidade 5', state: 'Estado 5', areaOfExpertise: 'Arte e Cultura', contact: 'Contato 5' },
-    { name: 'ONG 6', description: 'Descrição 5', city: 'Cidade 5', state: 'Estado 5', areaOfExpertise: 'Arte e Cultura', contact: 'Contato 5' },
-    { name: 'ONG 7', description: 'Descrição 5', city: 'Cidade 5', state: 'Estado 5', areaOfExpertise: 'Arte e Cultura', contact: 'Contato 5' },
-    { name: 'ONG 8', description: 'Descrição 5', city: 'Cidade 5', state: 'Estado 5', areaOfExpertise: 'Arte e Cultura', contact: 'Contato 5' },
-];
+const API_URL = `${process.env.BD_API}/ongs/allongs`;
+
+export interface ONG {
+    id: string;
+    name: string;
+    description: string;
+    city: string;
+    state: string;
+    area: string;
+    contact: string;
+}
 
 const Home: React.FC = () => {
     const [searchTerm, setSearchTerm] = React.useState('');
+    const [ongs, setOngs] = React.useState<ONG[]>([]);
+    const [loading, setLoading] = React.useState(true);
+    const [error, setError] = React.useState('');
+    const [authenticated, setAuthenticated] = React.useState<boolean | null>(null);
+
+    React.useEffect(() => {
+        const checkAuthentication = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    setAuthenticated(false);
+                    return;
+                }
+
+                console.log(token)
+
+                const response = await axios.get(`${process.env.BD_API}/auth/validate`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    setAuthenticated(true);
+                    fetchOngs();
+                }
+            } catch (error) {
+                setAuthenticated(false);
+            }
+        };
+
+        // Função para buscar ONGs se autenticado
+        const fetchOngs = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get<ONG[]>(API_URL, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                setOngs(response.data);
+            } catch (err) {
+                setError('Erro ao carregar as ONGs.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        checkAuthentication();
+    }, []);
 
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
 
-    const filteredData = data.filter(row =>
+    const filteredData = ongs.filter((row) =>
         row.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    if (authenticated === null) {
+        // Exibe um carregando ou um componente de placeholder enquanto a autenticação é verificada
+        return <p>Verificando autenticação...</p>;
+    }
+
+    if (!authenticated) {
+        // Redireciona ou exibe uma mensagem se não autenticado
+        window.location.href = '/login';
+        return null;
+    }
 
     return (
         <>
@@ -50,6 +114,10 @@ const Home: React.FC = () => {
 
             <Nav />
             <Container>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2, mb: 4 }}>
+                    <Image src={logoImg} alt="Workflow" width={200} />
+                </Box>
+                <Title>ONGS Cadastradas</Title>
                 <Search>
                     <StyledInput
                         type="text"
@@ -58,8 +126,13 @@ const Home: React.FC = () => {
                         onChange={handleSearchChange}
                     />
                 </Search>
-                <Title>ONGS Cadastradas</Title>
-                <Table rows={filteredData} />
+                {loading ? (
+                    <p>Carregando...</p>
+                ) : error ? (
+                    <p>{error}</p>
+                ) : (
+                    <Table rows={filteredData} />
+                )}
             </Container>
         </>
     );
@@ -85,7 +158,7 @@ const StyledInput = styled('input')({
     width: '80%',
     margin: '0 auto',
     display: 'block',
-    marginBottom: '50px',
+    marginBottom: '20px',
     padding: '10px',
     border: 'solid 1px #B0B8C4',
     borderRadius: '8px',

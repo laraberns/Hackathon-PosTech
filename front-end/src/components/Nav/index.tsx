@@ -2,31 +2,52 @@ import * as React from 'react';
 import { styled } from '@mui/system';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-
-const user = {
-  isAdmin: true,
-};
+import axios from 'axios';
 
 const Nav = () => {
   const [showMenu, setShowMenu] = React.useState(false);
+  const [user, setUser] = React.useState<{ email?: string, displayName?: string, typeUser?: string }>({});
+
+  React.useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const response = await axios.get(`${process.env.BD_API}/auth/user-details`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setUser(response.data);
+        }
+      } catch (error) {
+        console.error('Erro ao obter detalhes do usuário:', error);
+      }
+    };
+
+    fetchUserDetails();
+  }, []);
 
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.location.href = '/login';  // Redireciona para a página de login
+  };
+
+  const profileUrl = user.typeUser === 'Admin' ? '/perfil-admin' : '/perfil-usuario';
+
   return (
     <NavContainer>
       <DesktopNavList>
         <DesktopNavItem onClick={() => window.location.href='/home'}>Home</DesktopNavItem>
-        <DesktopNavItem>Perfil</DesktopNavItem>
-        <DesktopNavItem>Inscrições</DesktopNavItem>
-        {user.isAdmin && (
-          <>
-              <DesktopNavItem onClick={() => window.location.href='/gerenciamento-de-ongs'}>Gerenciar ONGs</DesktopNavItem>
-              <DesktopNavItem>Gerenciar Usuários</DesktopNavItem>
-          </>
+        <DesktopNavItem onClick={() => window.location.href=profileUrl}>Perfil</DesktopNavItem>
+        {user.typeUser === 'Admin' && (
+          <DesktopNavItem onClick={() => window.location.href='/gerenciamento-de-ongs'}>Gerenciar ONGs</DesktopNavItem>
         )}
-        <DesktopNavItem>Logout</DesktopNavItem>
+        <DesktopNavItem onClick={handleLogout}>Logout</DesktopNavItem>
       </DesktopNavList>
       <MobileMenuButton onClick={toggleMenu}>
         <MenuIcon />
@@ -34,15 +55,11 @@ const Nav = () => {
       <NavMenu showMenu={showMenu}>
         <MobileNavList>
           <MobileNavItem onClick={() => window.location.href='/home'}>Home</MobileNavItem>
-          <MobileNavItem>Perfil</MobileNavItem>
-          <MobileNavItem>Inscrições</MobileNavItem>
-          {user.isAdmin && (
-            <>
-              <MobileNavItem onClick={() => window.location.href='/gerenciamento-de-ongs'}>Gerenciar ONGs</MobileNavItem>
-              <MobileNavItem>Gerenciar Usuários</MobileNavItem>
-            </>
+          <MobileNavItem onClick={() => window.location.href=profileUrl}>Perfil</MobileNavItem>
+          {user.typeUser === 'Admin' && (
+            <MobileNavItem onClick={() => window.location.href='/gerenciamento-de-ongs'}>Gerenciar ONGs</MobileNavItem>
           )}
-          <MobileNavItem>Logout</MobileNavItem>
+          <MobileNavItem onClick={handleLogout}>Logout</MobileNavItem>
         </MobileNavList>
       </NavMenu>
     </NavContainer>
@@ -50,6 +67,7 @@ const Nav = () => {
 };
 
 export default Nav;
+
 
 const NavContainer = styled('nav')({
   width: '100%',

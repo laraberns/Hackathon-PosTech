@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const isStrongPassword = require('../utils/strongPassword.js');
+const authenticateJWT = require('../utils/authMiddleware.js');
 require("dotenv").config()
 
 const SECRET_KEY = 'your-secret-key';
@@ -170,7 +171,7 @@ exports.getUserDetails = async (req, res) => {
     }
 
     const user = userSnapshot.docs[0].data();
-    res.status(200).json({ email: user.email, displayName: user.displayName });
+    res.status(200).json({ email: user.email, displayName: user.displayName, typeUser: user.typeUser });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -252,6 +253,11 @@ exports.updateUserType = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+};
+
+// Controlador para validar token
+exports.validateToken = (req, res) => {
+  res.status(200).json({ message: 'Token é válido', user: req.user });
 };
 
 

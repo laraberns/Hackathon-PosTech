@@ -14,15 +14,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Grid from '@mui/material/Grid';
 import CustomModal from '../Modal'; 
-
-interface ONG {
-  name: string;
-  description: string;
-  city: string;
-  state: string;
-  areaOfExpertise: string;
-  contact: string;
-}
+import { ONG } from '@/pages/home';
 
 interface TableProps {
   rows: ONG[];
@@ -63,12 +55,12 @@ const Table: React.FC<TableProps> = ({ rows }) => {
 
   const filteredRows = rows.filter(row => {
     const matchesCity = cityFilter === '' || row.city.toLowerCase() === cityFilter.toLowerCase();
-    const matchesArea = areaFilter === '' || row.areaOfExpertise.toLowerCase() === areaFilter.toLowerCase();
+    const matchesArea = areaFilter === '' || row.area.toLowerCase() === areaFilter.toLowerCase();
     return matchesCity && matchesArea;
   });
 
   const cities = Array.from(new Set(rows.map(row => row.city)));
-  const areas = Array.from(new Set(rows.map(row => row.areaOfExpertise)));
+  const areas = Array.from(new Set(rows.map(row => row.area)));
 
   return (
     <Root>
@@ -133,7 +125,7 @@ const Table: React.FC<TableProps> = ({ rows }) => {
                 <td>{row.description}</td>
                 <td>{row.city}</td>
                 <td>{row.state}</td>
-                <td>{row.areaOfExpertise}</td>
+                <td>{row.area}</td>
                 <td>{row.contact}</td>
               </tr>
             ))}

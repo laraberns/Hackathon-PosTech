@@ -50,10 +50,10 @@ exports.getONGById = async (req, res) => {
 };
 
 exports.addONG = async (req, res) => {
-    const { name, description, location, area, contact, logo } = req.body;
+    const { name, description, city, state, area, contact} = req.body;
 
-    if (!name || !description || !location || !area || !contact || !logo) {
-        return res.status(400).send('Nome, descrição, localização, área de atuação, contato e logo são requeridos.');
+    if (!name || !description || !city || !state || !area || !contact) {
+        return res.status(400).send('Nome, descrição, cidade, estado, área de atuação e contato são requeridos.');
     }
 
     if (!areaOptions.includes(area)) {
@@ -71,10 +71,10 @@ exports.addONG = async (req, res) => {
         const newONGRef = await ongsRef.add({
             name,
             description,
-            location,
+            city,
+            state,
             area,
             contact,
-            logo
         });
 
         res.status(200).send({ id: newONGRef.id, message: 'ONG adicionada com sucesso' });
@@ -84,10 +84,10 @@ exports.addONG = async (req, res) => {
 };
 
 exports.changeONG = async (req, res) => {
-    const { id, name, description, location, area, contact, logo } = req.body;
+    const { id, name, description, city, state, area, contact} = req.body;
 
-    if (!id || !name || !description || !location || !area || !contact || !logo) {
-        return res.status(400).send('ID, nome, descrição, localização, área de atuação, contato e logo são necessários.');
+    if (!id || !name || !description || !city || !state || !area || !contact) {
+        return res.status(400).send('ID, nome, descrição, cidade, estado, área de atuação e contato são requeridos.');
     }
 
     if (!areaOptions.includes(area)) {
@@ -110,10 +110,10 @@ exports.changeONG = async (req, res) => {
         await ongRef.update({
             name,
             description,
-            location,
+            city,
+            state,
             area,
             contact,
-            logo
         });
 
         res.status(200).send('ONG atualizada com sucesso');
