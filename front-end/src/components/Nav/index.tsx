@@ -72,7 +72,7 @@ export default Nav;
 const NavContainer = styled('nav')({
   width: '100%',
   height: '20px',
-  backgroundColor: '#FECABF',
+  backgroundColor: '#ffb7d1',
   padding: '10px 0',
   boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
   fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',

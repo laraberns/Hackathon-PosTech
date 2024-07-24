@@ -6,18 +6,9 @@ import { Box, GlobalStyles } from '@mui/material';
 import axios from 'axios';
 import Image from 'next/image';
 import logoImg from '../../assets/logo.png';
+import { ONG } from '@/components/Modal';
 
 const API_URL = `${process.env.BD_API}/ongs/allongs`;
-
-export interface ONG {
-    id: string;
-    name: string;
-    description: string;
-    city: string;
-    state: string;
-    area: string;
-    contact: string;
-}
 
 const Home: React.FC = () => {
     const [searchTerm, setSearchTerm] = React.useState('');
@@ -115,7 +106,7 @@ const Home: React.FC = () => {
             <Nav />
             <Container>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2, mb: 4 }}>
-                    <Image src={logoImg} alt="Workflow" width={200} />
+                    <Image src={logoImg} alt="Image of logo" width={150} />
                 </Box>
                 <Title>ONGS Cadastradas</Title>
                 <Search>
