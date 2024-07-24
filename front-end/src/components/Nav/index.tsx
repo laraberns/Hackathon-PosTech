@@ -17,13 +17,13 @@ const Nav = () => {
   return (
     <NavContainer>
       <DesktopNavList>
-        <DesktopNavItem>Home</DesktopNavItem>
+        <DesktopNavItem onClick={() => window.location.href='/home'}>Home</DesktopNavItem>
         <DesktopNavItem>Perfil</DesktopNavItem>
         <DesktopNavItem>Inscrições</DesktopNavItem>
         {user.isAdmin && (
           <>
-            <DesktopNavItem>ONGs</DesktopNavItem>
-            <DesktopNavItem>Usuários</DesktopNavItem>
+              <DesktopNavItem onClick={() => window.location.href='/gerenciamento-de-ongs'}>Gerenciar ONGs</DesktopNavItem>
+              <DesktopNavItem>Gerenciar Usuários</DesktopNavItem>
           </>
         )}
         <DesktopNavItem>Logout</DesktopNavItem>
@@ -33,13 +33,13 @@ const Nav = () => {
       </MobileMenuButton>
       <NavMenu showMenu={showMenu}>
         <MobileNavList>
-          <MobileNavItem>Home</MobileNavItem>
+          <MobileNavItem onClick={() => window.location.href='/home'}>Home</MobileNavItem>
           <MobileNavItem>Perfil</MobileNavItem>
           <MobileNavItem>Inscrições</MobileNavItem>
           {user.isAdmin && (
             <>
-              <MobileNavItem>ONGs</MobileNavItem>
-              <MobileNavItem>Usuários</MobileNavItem>
+              <MobileNavItem onClick={() => window.location.href='/gerenciamento-de-ongs'}>Gerenciar ONGs</MobileNavItem>
+              <MobileNavItem>Gerenciar Usuários</MobileNavItem>
             </>
           )}
           <MobileNavItem>Logout</MobileNavItem>
