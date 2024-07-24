@@ -12,15 +12,38 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [open, setOpen] = useState(false);
+  const [step, setStep] = useState('initial'); // Novo estado para controle de etapa
+  const [recoveryCode, setRecoveryCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
-  function handleSignIn(e: FormEvent) {
+  async function handleSignIn(e: FormEvent) {
     e.preventDefault();
 
-    //remover com conexao ao back
-    if (email === 'lara@email.com' && password === '123') {
-      toast.success("Login com sucesso!");
-    } else {
-      toast.error("Usuário inválido");
+    if (!email || !password) {
+      toast.error("Por favor, preencha todos os campos.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${process.env.BD_API}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token); // Armazenar o token no localStorage
+        toast.success("Login com sucesso!");
+      } else {
+        toast.error(`Erro: ${data.error}`);
+      }
+    } catch (error) {
+      toast.error('Ocorreu um erro ao tentar fazer login.');
     }
   }
 
@@ -29,6 +52,7 @@ export default function Login() {
       toast.error("Por favor, preencha o campo de e-mail para enviar o código de recuperação.");
       return;
     }
+    setStep('initial');
     setOpen(true);
   }
 
@@ -36,9 +60,60 @@ export default function Login() {
     setOpen(false);
   }
 
-  function handleSendRecoveryCode() {
-    toast.success("Código de recuperação enviado com sucesso!");
-    handleCloseModal();
+  async function handleSendRecoveryCode() {
+    try {
+      const response = await fetch(`${process.env.BD_API}/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Código de recuperação enviado com sucesso!");
+        setStep('verifyCode');
+      } else {
+        toast.error(`Erro: ${data.error}`);
+      }
+    } catch (error) {
+      toast.error('Ocorreu um erro ao tentar enviar o código de recuperação.');
+    }
+  }
+
+  async function handleVerifyCode() {
+    if (!recoveryCode || !newPassword || !confirmNewPassword) {
+      toast.error("Por favor, preencha todos os campos.");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      toast.error("As senhas não coincidem.");
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8383/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, token: recoveryCode, newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Senha redefinida com sucesso!");
+        handleCloseModal();
+      } else {
+        toast.error(`Erro: ${data.error}`);
+      }
+    } catch (error) {
+      toast.error('Ocorreu um erro ao tentar redefinir a senha.');
+    }
   }
 
   return (
@@ -113,23 +188,78 @@ export default function Login() {
         open={open}
         onClose={handleCloseModal}
       >
-        <DialogTitle>
-          {"Esqueceu sua senha?"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Deseja enviar um código de recuperação para o e-mail:
-          </DialogContentText>
-          <DialogContentText>
-            {email}?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseModal}>Não</Button>
-          <Button onClick={handleSendRecoveryCode} autoFocus>
-            Sim
-          </Button>
-        </DialogActions>
+        {step === 'initial' ? (
+          <>
+            <DialogTitle>
+              {"Esqueceu sua senha?"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Deseja enviar um código de recuperação para o e-mail:
+              </DialogContentText>
+              <DialogContentText>
+                {email}?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseModal}>Não</Button>
+              <Button onClick={handleSendRecoveryCode} autoFocus>
+                Sim
+              </Button>
+            </DialogActions>
+          </>
+        ) : (
+          <>
+            <DialogTitle>
+              {"Digite o código de recuperação e a nova senha"}
+            </DialogTitle>
+            <DialogContent>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="recovery-code"
+                label="Código de Recuperação"
+                name="recovery-code"
+                autoComplete="off"
+                variant="outlined"
+                onChange={e => setRecoveryCode(e.target.value)}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="new-password"
+                label="Nova Senha"
+                type="password"
+                id="new-password"
+                autoComplete="new-password"
+                placeholder="********************"
+                variant="outlined"
+                onChange={e => setNewPassword(e.target.value)}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="confirm-new-password"
+                label="Confirmar Nova Senha"
+                type="password"
+                id="confirm-new-password"
+                autoComplete="new-password"
+                placeholder="********************"
+                variant="outlined"
+                onChange={e => setConfirmNewPassword(e.target.value)}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseModal}>Cancelar</Button>
+              <Button onClick={handleVerifyCode} autoFocus>
+                Verificar Código e Redefinir Senha
+              </Button>
+            </DialogActions>
+          </>
+        )}
       </Dialog>
     </>
   );

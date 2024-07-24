@@ -17,7 +17,7 @@ export default function Register() {
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isPasswordValid, setIsPasswordValid] = useState(true);
   const [isConfirmPasswordValid, setIsConfirmPasswordValid] = useState(true);
-  const [alignment, setAlignment] = React.useState('user');
+  const [alignment, setAlignment] = React.useState('User');
 
   const handleToggleAdminUserChange = (
     event: React.MouseEvent<HTMLElement>,

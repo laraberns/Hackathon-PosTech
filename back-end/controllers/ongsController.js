@@ -28,7 +28,6 @@ exports.getONGs = async (req, res) => {
 
         res.status(200).send(ongs);
     } catch (error) {
-        console.error('Erro:', error);
         res.status(500).send('Erro interno');
     }
 };
@@ -46,7 +45,6 @@ exports.getONGById = async (req, res) => {
 
         res.status(200).send({ id: doc.id, ...doc.data() });
     } catch (error) {
-        console.error('Erro:', error);
         res.status(500).send('Erro interno');
     }
 };
@@ -81,7 +79,6 @@ exports.addONG = async (req, res) => {
 
         res.status(200).send({ id: newONGRef.id, message: 'ONG adicionada com sucesso' });
     } catch (error) {
-        console.error('Erro:', error);
         res.status(500).send('Erro interno');
     }
 };
@@ -121,7 +118,6 @@ exports.changeONG = async (req, res) => {
 
         res.status(200).send('ONG atualizada com sucesso');
     } catch (error) {
-        console.error('Erro:', error);
         res.status(500).send('Erro interno');
     }
 };
@@ -144,7 +140,6 @@ exports.deleteONG = async (req, res) => {
         await ongRef.delete();
         res.status(200).send('ONG deletada com sucesso');
     } catch (error) {
-        console.error('Erro:', error);
         res.status(500).send('Erro interno');
     }
 };
