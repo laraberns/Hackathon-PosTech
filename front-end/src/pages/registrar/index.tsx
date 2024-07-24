@@ -9,7 +9,6 @@ import { Global } from '@emotion/react';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function Register() {
-
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -18,7 +17,7 @@ export default function Register() {
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isPasswordValid, setIsPasswordValid] = useState(true);
   const [isConfirmPasswordValid, setIsConfirmPasswordValid] = useState(true);
-  const [alignment, setAlignment] = React.useState('web');
+  const [alignment, setAlignment] = React.useState('user');
 
   const handleToggleAdminUserChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -27,11 +26,36 @@ export default function Register() {
     setAlignment(newAlignment);
   };
 
-  function handleRegister(e: FormEvent) {
+  async function handleRegister(e: FormEvent) {
     e.preventDefault();
-    const isFormValid = isNameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid && password === confirmPassword;
-    if (isFormValid) {
-      toast.success("Registrado com sucesso!");
+    
+    if (isNameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid && password === confirmPassword) {
+      try {
+        const response = await fetch(`${process.env.BD_API}/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            displayName: name,
+            typeUser: alignment
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          toast.success("Registrado com sucesso!");
+        } else {
+          toast.error(`Erro: ${data.error}`);
+        }
+      } catch (error) {
+        toast.error('Ocorreu um erro ao tentar registrar.');
+      }
+    } else {
+      toast.error("Por favor, corrija os erros no formulário.");
     }
   }
 
@@ -148,8 +172,8 @@ export default function Register() {
               exclusive
               onChange={handleToggleAdminUserChange}
             >
-              <ToggleButton value="user">Usuário</ToggleButton>
-              <ToggleButton value="admin">Admin</ToggleButton>
+              <ToggleButton value="User">Usuário</ToggleButton>
+              <ToggleButton value="Admin">Admin</ToggleButton>
             </ToggleButtonGroup>
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
               <Button
