@@ -2,8 +2,10 @@ import * as React from 'react';
 import Table from '../../components/Table';
 import { styled } from '@mui/system';
 import Nav from '@/components/Nav';
-import { GlobalStyles } from '@mui/material';
+import { Box, GlobalStyles } from '@mui/material';
 import axios from 'axios';
+import Image from 'next/image';
+import logoImg from '../../assets/logo.png';
 
 const API_URL = `${process.env.BD_API}/ongs/allongs`;
 
@@ -112,6 +114,10 @@ const Home: React.FC = () => {
 
             <Nav />
             <Container>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2, mb: 4 }}>
+                    <Image src={logoImg} alt="Workflow" width={200} />
+                </Box>
+                <Title>ONGS Cadastradas</Title>
                 <Search>
                     <StyledInput
                         type="text"
@@ -120,7 +126,6 @@ const Home: React.FC = () => {
                         onChange={handleSearchChange}
                     />
                 </Search>
-                <Title>ONGS Cadastradas</Title>
                 {loading ? (
                     <p>Carregando...</p>
                 ) : error ? (
@@ -151,9 +156,9 @@ const Search = styled('div')({
 
 const StyledInput = styled('input')({
     width: '80%',
-    margin: '1rem auto',
+    margin: '0 auto',
     display: 'block',
-    marginBottom: '50px',
+    marginBottom: '20px',
     padding: '10px',
     border: 'solid 1px #B0B8C4',
     borderRadius: '8px',
