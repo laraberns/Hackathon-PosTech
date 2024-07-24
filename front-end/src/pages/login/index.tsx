@@ -37,8 +37,8 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('token', data.token); // Armazenar o token no localStorage
-        toast.success("Login com sucesso!");
+        localStorage.setItem('token', data.token);
+        window.location.href = '/home'
       } else {
         toast.error(`Erro: ${data.error}`);
       }
