@@ -378,9 +378,6 @@ export default function AdminProfile() {
                 <Box sx={{ mt: 1, backgroundColor: "white", padding: "20px", borderRadius: "20px" }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                         <Image src={logoImg} alt="Image of logo" width={150} />
-                        <Typography variant="h5" >
-                            Meu Perfil
-                        </Typography>
                     </Box>
                     <Grid container spacing={2} sx={{ mt: 1 }}>
                         <Grid item xs={12}>
@@ -394,14 +391,15 @@ export default function AdminProfile() {
                                 <Typography variant="body1">
                                     E-mail: <span style={{ fontWeight: 'bold' }}>{user.email}</span>
                                 </Typography>
-                                <Button
+                                <Button 
                                     variant="contained"
-                                    sx={{ my: 3, mr: 2 }}
+                                    sx={{ my: 3, mr: 2, backgroundColor: '#ffb7d1' }}
                                     onClick={() => setEditProfileOpen(true)}
                                 >
                                     Editar Perfil
                                 </Button>
                                 <Button
+                                    sx={{backgroundColor: '#ffb7d1' }}
                                     variant="contained"
                                     onClick={() => setEditPasswordOpen(true)}
                                 >
@@ -425,7 +423,9 @@ export default function AdminProfile() {
                                                     secondary={ong.description}
                                                 />
                                                 <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center' }}>
-                                                    <IconButton onClick={() => {
+                                                    <IconButton 
+                                                    sx={{backgroundColor: '#transparent', color: '#grey' }}
+                                                    onClick={() => {
                                                         setSelectedOng(ong);
                                                         setNewOng({
                                                             id: ong.id,
@@ -440,10 +440,13 @@ export default function AdminProfile() {
                                                     }}>
                                                         <EditIcon />
                                                     </IconButton>
-                                                    <IconButton onClick={() => openConfirmDeleteDialog(ong.id)}>
+                                                    <IconButton 
+                                                    sx={{backgroundColor: '#transparent', color: '#grey' }}
+                                                    onClick={() => openConfirmDeleteDialog(ong.id)}>
                                                         <DeleteIcon />
                                                     </IconButton>
                                                     <IconButton
+                                                        sx={{backgroundColor: 'transparent', color: '#grey' }}
                                                         onClick={() => setExpandedOng(expandedOng === index ? null : index)}
                                                     >
                                                         {expandedOng === index ? <RemoveCircleOutlineIcon /> : <AddCircleOutlineIcon />}
@@ -464,6 +467,7 @@ export default function AdminProfile() {
                                         variant="contained"
                                         startIcon={<AddCircleOutlineIcon />}
                                         onClick={() => setAddOngOpen(true)}
+                                        sx={{backgroundColor: '#ffb7d1' }}
                                     >
                                         Adicionar ONG
                                     </Button>
@@ -483,6 +487,7 @@ export default function AdminProfile() {
                                     />
                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                         <IconButton
+                                            sx={{backgroundColor: '#ffb7d1', color:'#fff' }}
                                             onClick={() => openUpdateUserDialog(user)}
                                         >
                                             <EditIcon />
