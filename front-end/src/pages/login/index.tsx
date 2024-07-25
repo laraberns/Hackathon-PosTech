@@ -1,12 +1,13 @@
 import React, { FormEvent, useState } from 'react';
 import Image from 'next/image';
-import { Container, Typography, TextField, Button, Link, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import { Box } from '@mui/system';
+import { Container, Typography, Link, Box } from '@mui/material';
 import logoImg from '../../assets/logo.png';
 import { Global } from '@emotion/react';
 import { globalStyles } from '@/styles/backgroundStyle';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import FormLogin from '@/components/FormLogin';
+import DialogLogin from '@/components/DialogLogin';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,6 +17,7 @@ export default function Login() {
   const [recoveryCode, setRecoveryCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [loading, setLoading] = useState(false)
 
   async function handleSignIn(e: FormEvent) {
     e.preventDefault();
@@ -61,6 +63,7 @@ export default function Login() {
   }
 
   async function handleSendRecoveryCode() {
+    setLoading(true); 
     try {
       const response = await fetch(`${process.env.BD_API}/auth/forgot-password`, {
         method: 'POST',
@@ -80,6 +83,8 @@ export default function Login() {
       }
     } catch (error) {
       toast.error('Ocorreu um erro ao tentar enviar o código de recuperação.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -129,138 +134,38 @@ export default function Login() {
           <Typography variant="body1" sx={{ textAlign: 'center', mt: 2 }}>
             Entre com suas credenciais abaixo para acessar sua conta.
           </Typography>
-          <Box component="form" noValidate sx={{ mt: 2 }} onSubmit={handleSignIn}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="E-mail"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              placeholder="johndoe@gmail.com"
-              variant="outlined"
-              onChange={e => setEmail(e.target.value)}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Senha"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              placeholder="********************"
-              variant="outlined"
-              onChange={e => setPassword(e.target.value)}
-            />
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
-              <Typography variant="body1">
-                <Link onClick={handleOpenModal} sx={{ fontSize: '14px', cursor: 'pointer' }} underline='none'>
-                  Esqueceu sua senha?
-                </Link>
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
-              <Button
-                type="submit"
-                variant="contained"
-                sx={{ width: '50%' }}
-              >
-                Entrar
-              </Button>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-              <Typography variant="body1">
-                Você não tem uma conta?{' '}
-                <Link href="/registrar" sx={{ mt: 2, fontSize: '16px' }} underline='none'>
-                  Crie a sua conta aqui
-                </Link>
-              </Typography>
-            </Box>
+          <FormLogin
+            handleSignIn={handleSignIn}
+            setEmail={setEmail}
+            setPassword={setPassword}
+            handleOpenModal={handleOpenModal}
+          />
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Typography variant="body1">
+              Você não tem uma conta?{' '}
+              <Link href="/registrar" sx={{ mt: 2, fontSize: '16px' }} underline='none'>
+                Crie a sua conta aqui
+              </Link>
+            </Typography>
           </Box>
         </Box>
       </Container>
 
-      <Dialog
+      <DialogLogin
         open={open}
-        onClose={handleCloseModal}
-      >
-        {step === 'initial' ? (
-          <>
-            <DialogTitle>
-              {"Esqueceu sua senha?"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                Deseja enviar um código de recuperação para o e-mail:
-              </DialogContentText>
-              <DialogContentText>
-                {email}?
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseModal}>Não</Button>
-              <Button onClick={handleSendRecoveryCode} autoFocus>
-                Sim
-              </Button>
-            </DialogActions>
-          </>
-        ) : (
-          <>
-            <DialogTitle>
-              {"Digite o código de recuperação e a nova senha"}
-            </DialogTitle>
-            <DialogContent>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="recovery-code"
-                label="Código de Recuperação"
-                name="recovery-code"
-                autoComplete="off"
-                variant="outlined"
-                onChange={e => setRecoveryCode(e.target.value)}
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="new-password"
-                label="Nova Senha"
-                type="password"
-                id="new-password"
-                autoComplete="new-password"
-                placeholder="********************"
-                variant="outlined"
-                onChange={e => setNewPassword(e.target.value)}
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="confirm-new-password"
-                label="Confirmar Nova Senha"
-                type="password"
-                id="confirm-new-password"
-                autoComplete="new-password"
-                placeholder="********************"
-                variant="outlined"
-                onChange={e => setConfirmNewPassword(e.target.value)}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseModal}>Cancelar</Button>
-              <Button onClick={handleVerifyCode} autoFocus>
-                Verificar Código e Redefinir Senha
-              </Button>
-            </DialogActions>
-          </>
-        )}
-      </Dialog>
+        step={step}
+        email={email}
+        recoveryCode={recoveryCode}
+        newPassword={newPassword}
+        confirmNewPassword={confirmNewPassword}
+        handleCloseModal={handleCloseModal}
+        handleSendRecoveryCode={handleSendRecoveryCode}
+        handleVerifyCode={handleVerifyCode}
+        setRecoveryCode={setRecoveryCode}
+        setNewPassword={setNewPassword}
+        setConfirmNewPassword={setConfirmNewPassword}
+        loading={loading}
+      />
     </>
   );
 }
