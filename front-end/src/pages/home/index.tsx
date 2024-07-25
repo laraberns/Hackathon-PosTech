@@ -67,9 +67,8 @@ const Home: React.FC = () => {
     const filteredData = ongs.filter((row) =>
         row.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
     if (authenticated === null) {
-        return <p>Verificando autenticação...</p>;
+        return
     }
 
     if (!authenticated) {

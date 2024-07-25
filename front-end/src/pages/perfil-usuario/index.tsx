@@ -68,7 +68,6 @@ export default function ProfileUser() {
             });
             setAllOngs(response.data);
         } catch (err) {
-            console.error('Erro ao buscar ONGs:', err);
             toast.error("Erro ao carregar lista de ONGs.");
         }
     };
@@ -104,9 +103,8 @@ export default function ProfileUser() {
         checkAuthentication();
     }, []);
 
-
     if (authenticated === null) {
-        return <p>Verificando autenticação...</p>;
+        return
     }
 
     if (!authenticated) {
