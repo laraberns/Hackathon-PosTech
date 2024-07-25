@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Nav from '@/components/Nav';
 import axios from 'axios';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { ONG } from '../home';
+import { ONG } from '@/components/Modal';
 
 export default function ProfileUser() {
     const [user, setUser] = useState({
@@ -29,6 +29,53 @@ export default function ProfileUser() {
     const [allOngs, setAllOngs] = useState<ONG[]>([]);
     const [selectedOng, setSelectedOng] = useState('');
     const [authenticated, setAuthenticated] = React.useState<boolean | null>(null);
+
+    const fetchUserDetails = async (token: string) => {
+        try {
+            const response = await axios.get(`${process.env.BD_API}/auth/user-details`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const userDetails = response.data;
+            setUser(userDetails);
+            setNewName(userDetails.displayName);
+            setNewEmail(userDetails.email);
+        } catch (err) {
+            console.error('Erro ao buscar os detalhes do usuário:', err);
+            toast.error("Erro ao carregar dados do usuário.");
+        }
+    };
+
+    const fetchFavOngs = async (token: string) => {
+        try {
+            const response = await axios.get(`${process.env.BD_API}/auth/fav-ongs`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setOngs(response.data.favOngs);
+        } catch (err) {
+            console.error('Erro ao buscar ONGs favoritas:', err);
+            toast.error("Erro ao carregar ONGs favoritas.");
+        }
+    };
+
+
+    const fetchOngs = async (token: string) => {
+        try {
+            const response = await axios.get(`${process.env.BD_API}/ongs/allongs`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setAllOngs(response.data);
+        } catch (err) {
+            console.error('Erro ao buscar ONGs:', err);
+            toast.error("Erro ao carregar lista de ONGs.");
+        }
+    };
+
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -62,7 +109,7 @@ export default function ProfileUser() {
         checkAuthentication();
     }, []);
 
-    
+
     if (authenticated === null) {
         return <p>Verificando autenticação...</p>;
     }
@@ -71,38 +118,6 @@ export default function ProfileUser() {
         window.location.href = '/login';
         return null;
     }
-
-    const fetchOngs = async (token: string) => {
-        try {
-            const response = await axios.get(`${process.env.BD_API}/ongs/allongs`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            console.log(response)
-            setAllOngs(response.data);
-        } catch (err) {
-            console.error('Erro ao buscar ONGs:', err);
-            toast.error("Erro ao carregar lista de ONGs.");
-        }
-    };
-
-    const fetchUserDetails = async (token: string) => {
-        try {
-            const response = await axios.get(`${process.env.BD_API}/auth/user-details`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const userDetails = response.data;
-            setUser(userDetails);
-            setNewName(userDetails.displayName);
-            setNewEmail(userDetails.email);
-        } catch (err) {
-            console.error('Erro ao buscar os detalhes do usuário:', err);
-            toast.error("Erro ao carregar dados do usuário.");
-        }
-    };
 
     const handleRemoveFavOng = async (ongName: string) => {
         const token = localStorage.getItem('token');
@@ -124,20 +139,6 @@ export default function ProfileUser() {
         }
     };
 
-
-    const fetchFavOngs = async (token: string) => {
-        try {
-            const response = await axios.get(`${process.env.BD_API}/auth/fav-ongs`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setOngs(response.data.favOngs);
-        } catch (err) {
-            console.error('Erro ao buscar ONGs favoritas:', err);
-            toast.error("Erro ao carregar ONGs favoritas.");
-        }
-    };
 
     const handleEditProfile = async () => {
         const token = localStorage.getItem('token');
@@ -173,7 +174,6 @@ export default function ProfileUser() {
                 { currentPassword, newPassword },
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
-            console.log(currentPassword, newPassword)
             setEditPasswordOpen(false);
             toast.success("Senha atualizada com sucesso!");
         } catch (err: any) {

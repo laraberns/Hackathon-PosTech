@@ -82,7 +82,6 @@ export default function AdminProfile() {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            console.log(response);
             setUsers(response.data.users);
         } catch (err) {
             console.error('Erro ao buscar usuários:', err);
@@ -240,7 +239,6 @@ export default function AdminProfile() {
                     user.userId === selectedUser.userId ? { ...user, userType: selectedUser.userType } : user
                 )
             );
-            console.log(users)
             setUpdateUserOpen(false);
             setSelectedUser(null);
         } catch (error) {
