@@ -87,7 +87,14 @@ const FavOngs: React.FC<FavOngsProps> = ({ ongs, allOngs, handleRemoveFavOng, ha
                     </TextField>
                     <Button
                         variant="contained"
-                        sx={{ mt: 2 }}
+                        sx={{
+                            backgroundColor: '#ffb7d1',
+                            mt: 2,
+                            '&:hover': {
+                                backgroundColor: '#d48f9a',
+                            },
+                            fontWeight: 'bold', color: '#fff'
+                        }}
                         onClick={handleAddFavOng}
                         disabled={!selectedOng}
                     >

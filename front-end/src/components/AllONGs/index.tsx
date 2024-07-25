@@ -52,22 +52,25 @@ const AllONGs: React.FC<AllONGsProps> = ({
                                 secondary={ong.description}
                             />
                             <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center' }}>
-                                <IconButton onClick={() => {
-                                    setSelectedOng(ong);
-                                    setNewOng({
-                                        id: ong.id,
-                                        name: ong.name,
-                                        description: ong.description,
-                                        city: ong.city,
-                                        state: ong.state,
-                                        area: ong.area,
-                                        contact: ong.contact
-                                    });
-                                    setEditOngOpen(true);
-                                }}>
+                                <IconButton
+                                    sx={{ backgroundColor: '#transparent', color: '#grey' }}
+                                    onClick={() => {
+                                        setSelectedOng(ong);
+                                        setNewOng({
+                                            id: ong.id,
+                                            name: ong.name,
+                                            description: ong.description,
+                                            city: ong.city,
+                                            state: ong.state,
+                                            area: ong.area,
+                                            contact: ong.contact
+                                        });
+                                        setEditOngOpen(true);
+                                    }}>
                                     <EditIcon />
                                 </IconButton>
-                                <IconButton onClick={() => openConfirmDeleteDialog(ong.id)}>
+                                <IconButton sx={{ backgroundColor: 'transparent', color: '#grey' }}
+                                    onClick={() => openConfirmDeleteDialog(ong.id)}>
                                     <DeleteIcon />
                                 </IconButton>
                                 <IconButton
@@ -91,6 +94,13 @@ const AllONGs: React.FC<AllONGsProps> = ({
                     variant="contained"
                     startIcon={<AddCircleOutlineIcon />}
                     onClick={() => setAddOngOpen(true)}
+                    sx={{
+                        backgroundColor: '#ffb7d1',
+                        '&:hover': {
+                            backgroundColor: '#d48f9a',
+                        },
+                        fontWeight: 'bold'
+                    }}
                 >
                     Adicionar ONG
                 </Button>
