@@ -45,7 +45,7 @@ const Nav = () => {
         <DesktopNavItem onClick={() => window.location.href='/home'}>Home</DesktopNavItem>
         <DesktopNavItem onClick={() => window.location.href=profileUrl}>Perfil</DesktopNavItem>
         {user.typeUser === 'Admin' && (
-          <DesktopNavItem onClick={() => window.location.href='/gerenciamento-de-ongs'}>Gerenciar ONGs</DesktopNavItem>
+          <DesktopNavItem onClick={() => window.location.href='/perfil-admin'}>Gerenciar ONGs</DesktopNavItem>
         )}
         <DesktopNavItem onClick={handleLogout}>Logout</DesktopNavItem>
       </DesktopNavList>
@@ -57,7 +57,7 @@ const Nav = () => {
           <MobileNavItem onClick={() => window.location.href='/home'}>Home</MobileNavItem>
           <MobileNavItem onClick={() => window.location.href=profileUrl}>Perfil</MobileNavItem>
           {user.typeUser === 'Admin' && (
-            <MobileNavItem onClick={() => window.location.href='/gerenciamento-de-ongs'}>Gerenciar ONGs</MobileNavItem>
+            <MobileNavItem onClick={() => window.location.href='/perfil-admin'}>Gerenciar ONGs</MobileNavItem>
           )}
           <MobileNavItem onClick={handleLogout}>Logout</MobileNavItem>
         </MobileNavList>
