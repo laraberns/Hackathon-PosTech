@@ -13,8 +13,7 @@ import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Grid from '@mui/material/Grid';
-import CustomModal from '../Modal'; 
-import { ONG } from '@/pages/home';
+import CustomModal, { ONG } from '../Modal'; 
 
 interface TableProps {
   rows: ONG[];

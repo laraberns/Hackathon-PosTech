@@ -1,12 +1,12 @@
 import * as React from 'react';
 import Table from '../../components/Table';
-import { styled } from '@mui/system';
 import Nav from '@/components/Nav';
 import { Box, GlobalStyles } from '@mui/material';
 import axios from 'axios';
 import Image from 'next/image';
 import logoImg from '../../assets/logo.png';
 import { ONG } from '@/components/Modal';
+import { Container, Search, StyledInput, Title } from './styles';
 
 const API_URL = `${process.env.BD_API}/ongs/allongs`;
 
@@ -41,7 +41,6 @@ const Home: React.FC = () => {
             }
         };
 
-        // Função para buscar ONGs se autenticado
         const fetchOngs = async () => {
             try {
                 const token = localStorage.getItem('token');
@@ -70,12 +69,10 @@ const Home: React.FC = () => {
     );
 
     if (authenticated === null) {
-        // Exibe um carregando ou um componente de placeholder enquanto a autenticação é verificada
         return <p>Verificando autenticação...</p>;
     }
 
     if (!authenticated) {
-        // Redireciona ou exibe uma mensagem se não autenticado
         window.location.href = '/login';
         return null;
     }
@@ -100,7 +97,6 @@ const Home: React.FC = () => {
                     },
                 }}
             />
-
             <Nav />
             <Container>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2, mb: 4 }}>
@@ -129,34 +125,3 @@ const Home: React.FC = () => {
 
 export default Home;
 
-// ESTILOS
-const Container = styled('div')({
-    alignItems: 'center',
-    height: '100%',
-    padding: '10px',
-    borderRadius: '5px',
-    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-});
-
-const Search = styled('div')({
-    width: '100%',
-    height: '100%'
-});
-
-const StyledInput = styled('input')({
-    width: '80%',
-    margin: '0 auto',
-    display: 'block',
-    marginBottom: '20px',
-    padding: '10px',
-    border: 'solid 1px #B0B8C4',
-    borderRadius: '8px',
-    outline: 'none',
-});
-
-const Title = styled('h1')({
-    fontSize: '20px',
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    textAlign: 'center',
-    marginBottom: '20px',
-});
