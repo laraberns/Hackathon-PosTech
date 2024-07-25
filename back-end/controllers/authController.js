@@ -7,7 +7,7 @@ const nodemailer = require('nodemailer');
 const isStrongPassword = require('../utils/strongPassword.js');
 require("dotenv").config()
 
-const SECRET_KEY = 'your-secret-key';
+const SECRET_KEY = process.env.SECRET_KEY;
 
 // Controlador para login
 exports.login = async (req, res) => {
