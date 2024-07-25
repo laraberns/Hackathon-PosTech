@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'your-secret-key'; // Substitua pela sua chave secreta
+const SECRET_KEY = process.env.SECRET_KEY; // Substitua pela sua chave secreta
 
 // Middleware para verificar o token JWT
 const authenticateJWT = (req, res, next) => {
