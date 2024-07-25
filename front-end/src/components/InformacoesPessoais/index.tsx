@@ -24,12 +24,27 @@ const InformacoesPessoais: React.FC<InformacoesPessoaisProps> = ({ user, setEdit
             </Typography>
             <Button
                 variant="contained"
-                sx={{ my: 2, mr: 2 }}
+                sx={{
+                    my: 3,
+                    mr: 2,
+                    backgroundColor: '#ffb7d1',
+                    '&:hover': {
+                        backgroundColor: '#d48f9a',
+                    },
+                    fontWeight: 'bold'
+                }}
                 onClick={() => setEditProfileOpen(true)}
             >
                 Editar Perfil
             </Button>
             <Button
+                sx={{
+                    backgroundColor: '#ffb7d1',
+                    fontWeight: 'bold',
+                    '&:hover': {
+                        backgroundColor: '#d48f9a',
+                    },
+                }}
                 variant="contained"
                 onClick={() => setEditPasswordOpen(true)}
             >

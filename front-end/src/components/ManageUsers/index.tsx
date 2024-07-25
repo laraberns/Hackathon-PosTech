@@ -21,6 +21,13 @@ const ManageUsers: React.FC<ManageUsersProps> = ({ users, openUpdateUserDialog }
                         />
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <IconButton
+                                sx={{
+                                    backgroundColor: '#ffb7d1',
+                                    '&:hover': {
+                                        backgroundColor: '#d48f9a',
+                                    },
+                                    fontWeight: 'bold', color: '#fff'
+                                }}
                                 onClick={() => openUpdateUserDialog(user)}
                             >
                                 <EditIcon />
