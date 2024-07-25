@@ -26,8 +26,6 @@ const Home: React.FC = () => {
                     return;
                 }
 
-                console.log(token)
-
                 const response = await axios.get(`${process.env.BD_API}/auth/validate`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
