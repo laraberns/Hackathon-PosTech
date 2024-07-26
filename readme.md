@@ -89,7 +89,7 @@ module.exports = {
     FIREBASE_MESSAGING_SENDER_ID: "seu-messaging-sender-id",
     FIREBASE_APP_ID: "seu-app-id",
     FIREBASE_FCM_VAPID_KEY: "sua-fcm-vapid-key",
-    BD_API: "seuBancoDeDadosAPI"
+    BD_API: "seuBancoDeDadosAPI" //se for rodar local coloque o endereço que o seu backend está rodando
   },
   images: {
     domains: ["firebasestorage.googleapis.com"]
@@ -133,3 +133,4 @@ node server.js
 10. Aproveite o projeto 😀!
 
 Este README fornece uma visão geral do projeto ConectaONG, detalhando suas funcionalidades, tecnologias utilizadas e instruções para executar localmente.
+
