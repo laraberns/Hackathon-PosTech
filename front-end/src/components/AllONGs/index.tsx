@@ -5,7 +5,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
-interface Ong {
+export interface ONG {
     id: string;
     name: string;
     description: string;
@@ -16,9 +16,9 @@ interface Ong {
 }
 
 interface AllONGsProps {
-    ongs: Ong[];
-    setSelectedOng: (ong: Ong) => void;
-    setNewOng: (ong: Ong) => void;
+    ongs: ONG[];
+    setSelectedOng: (ong: ONG) => void;
+    setNewOng: (ong: ONG) => void;
     setEditOngOpen: (open: boolean) => void;
     setAddOngOpen: (open: boolean) => void;
     openConfirmDeleteDialog: (ongId: string) => void;

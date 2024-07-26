@@ -75,7 +75,7 @@ git clone https://github.com/laraberns/Hackathon-PosTech/front-end
 npm install
  ```
 
-3. Adicione um arquivo `next.config.js` com suas chaves do Firebase:
+3. Adicione um arquivo `next.config.js` com suas chaves do Firebase e banco de dados. Adicione também images > domain com a url "firebasestorage.googleapis.com":
 ```js
 module.exports = {
   env: {
@@ -88,6 +88,9 @@ module.exports = {
     FIREBASE_FCM_VAPID_KEY: "sua-fcm-vapid-key",
     BD_API: "seuBancoDeDadosAPI"
   },
+  images: {
+    domains: ["firebasestorage.googleapis.com"]
+  }
 };
 ```
 

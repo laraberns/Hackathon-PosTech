@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, Button, MenuItem, DialogActions } from '@mui/material';
-import { ONG } from '../Modal';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../firebaseConfig';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { ONG } from '../AllONGs';
 
 export interface State {
     code: string;
@@ -12,12 +16,62 @@ interface DialogAddONGProps {
     onClose: () => void;
     newOng: ONG;
     setNewOng: (ong: ONG) => void;
-    handleAddOng: () => void;
+    handleAddOng: (ong: ONG, imageUrl: string | null) => void;
     states: State[];
     areaOptions: string[];
 }
 
 const DialogAddONG: React.FC<DialogAddONGProps> = ({ open, onClose, newOng, setNewOng, handleAddOng, states, areaOptions }) => {
+    const [file, setFile] = useState<File | null>(null);
+    const [uploading, setUploading] = useState<boolean>(false);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files[0]) {
+            setFile(event.target.files[0]);
+        }
+    };
+
+    const handleUpload = async () => {
+        if (!file) return null;
+
+        setUploading(true);
+        const fileName = `${newOng.name.replace(/\s+/g, '_')}`;
+        const storageRef = ref(storage, `images/${fileName}`);
+
+        try {
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+            return url;
+        } catch (error) {
+            console.error('Error uploading the file', error);
+            return null;
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleAddOngClick = async () => {
+        let imageUrl: string | null = null;
+
+        if (file) {
+            imageUrl = await handleUpload();
+            if (!imageUrl) {
+                toast.error('Erro ao enviar a foto. ONG não adicionada.');
+                return;
+            }
+        }
+
+        try {
+            handleAddOng(newOng, imageUrl);
+            setNewOng({ id: '', name: '', description: '', city: '', state: '', area: '', contact: '' });
+            setFile(null);
+            onClose();
+        } catch (error) {
+            console.error('Error adding ONG', error);
+            toast.error('Erro ao adicionar ONG.');
+        }
+    };
+
     const handleInputChange = (field: keyof ONG) => (e: React.ChangeEvent<HTMLInputElement>) => {
         setNewOng({ ...newOng, [field]: e.target.value });
     };
@@ -97,10 +151,24 @@ const DialogAddONG: React.FC<DialogAddONGProps> = ({ open, onClose, newOng, setN
                     value={newOng.contact}
                     onChange={handleInputChange('contact')}
                 />
+                <DialogContentText sx={{ my: 1 }}>
+                    Foto da ONG
+                </DialogContentText>
+                <input type="file" onChange={handleFileChange} />
+                <ToastContainer />
             </DialogContent>
             <DialogActions>
+                <Button
+                    variant="contained"
+                    onClick={handleAddOngClick}
+                    disabled={uploading}
+                    sx={{
+                        m: 1
+                    }}
+                >
+                    {uploading ? 'Enviando...' : 'Adicionar'}
+                </Button>
                 <Button onClick={onClose}>Cancelar</Button>
-                <Button onClick={handleAddOng}>Adicionar</Button>
             </DialogActions>
         </Dialog>
     );

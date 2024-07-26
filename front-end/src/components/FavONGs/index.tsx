@@ -3,19 +3,11 @@ import { Box, Typography, List, ListItem, ListItemText, Button, Collapse, TextFi
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-
-interface Ong {
-    name: string;
-    description: string;
-    city: string;
-    state: string;
-    area: string;
-    contact: string;
-}
+import { ONG } from '../AllONGs';
 
 interface FavOngsProps {
-    ongs: Ong[];
-    allOngs: Ong[];
+    ongs: ONG[];
+    allOngs: ONG[];
     handleRemoveFavOng: (name: string) => void;
     handleAddFavOng: () => void;
     selectedOng: string;

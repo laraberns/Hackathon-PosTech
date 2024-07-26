@@ -1,3 +1,4 @@
+"use client"
 import * as React from 'react';
 import Table from '../../components/Table';
 import Nav from '@/components/Nav';
@@ -5,8 +6,8 @@ import { Box, GlobalStyles } from '@mui/material';
 import axios from 'axios';
 import Image from 'next/image';
 import logoImg from '../../assets/logo.png';
-import { ONG } from '@/components/Modal';
 import { Container, Search, StyledInput, Title } from './styles';
+import { ONG } from '@/components/AllONGs';
 
 const API_URL = `${process.env.BD_API}/ongs/allongs`;
 

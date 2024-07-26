@@ -6,11 +6,11 @@ import logoImg from '../../assets/logo.png';
 import Image from 'next/image';
 import Nav from '@/components/Nav';
 import axios from 'axios';
-import { ONG } from '@/components/Modal';
 import InformacoesPessoais from '@/components/InformacoesPessoais';
 import FavOngs from '@/components/FavONGs';
 import DialogEditProfile from '@/components/DialogEditProfile';
 import DialogEditPassword from '@/components/DialogEditPassword';
+import { ONG } from '@/components/AllONGs';
 
 export default function ProfileUser() {
     const [user, setUser] = useState({

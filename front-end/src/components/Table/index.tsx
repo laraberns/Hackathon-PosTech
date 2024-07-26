@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/system';
 import {
   TablePagination,
@@ -13,7 +13,11 @@ import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Grid from '@mui/material/Grid';
-import CustomModal, { ONG } from '../Modal'; 
+import CustomModal from '../Modal';
+import { ref, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../firebaseConfig';
+import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
+import { ONG } from '../AllONGs';
 
 interface TableProps {
   rows: ONG[];
@@ -26,6 +30,26 @@ const Table: React.FC<TableProps> = ({ rows }) => {
   const [areaFilter, setAreaFilter] = React.useState('');
   const [selectedOng, setSelectedOng] = React.useState<ONG | null>(null);
   const [openModal, setOpenModal] = React.useState(false);
+  const [images, setImages] = React.useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      const newImages: { [key: string]: string } = {};
+      for (const row of rows) {
+        const fileName = `${row.name.replace(/\s+/g, '_')}`;
+        const storageRef = ref(storage, `images/${fileName}`);
+        try {
+          const url = await getDownloadURL(storageRef);
+          newImages[row.name] = url;
+        } catch (error) {
+          newImages[row.name] = ''; // No URL means show default icon
+        }
+      }
+      setImages(newImages);
+    };
+
+    fetchImages();
+  }, [rows]);
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
@@ -63,7 +87,12 @@ const Table: React.FC<TableProps> = ({ rows }) => {
 
   return (
     <Root>
-      <CustomModal open={openModal} onClose={handleCloseModal} ong={selectedOng} />
+      <CustomModal
+        open={openModal}
+        onClose={handleCloseModal}
+        ong={selectedOng}
+        imageUrl={selectedOng ? images[selectedOng.name] : ''}
+      />
 
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
@@ -106,6 +135,7 @@ const Table: React.FC<TableProps> = ({ rows }) => {
         <StyledTable aria-label="custom pagination table">
           <thead>
             <tr>
+              <th>Imagem</th>
               <th>Nome</th>
               <th>Descrição</th>
               <th>Cidade</th>
@@ -120,6 +150,17 @@ const Table: React.FC<TableProps> = ({ rows }) => {
               : filteredRows
             ).map((row, index) => (
               <tr key={index} onClick={() => handleRowClick(row)} style={{ cursor: 'pointer' }}>
+                <td>
+                  {images[row.name] ? (
+                    <img
+                      src={images[row.name]}
+                      alt={row.name}
+                      style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <ImageNotSupportedIcon style={{ width: '50px', height: '50px', color: '#ccc' }} />
+                  )}
+                </td>
                 <td>{row.name}</td>
                 <td>{row.description}</td>
                 <td>{row.city}</td>
@@ -131,7 +172,7 @@ const Table: React.FC<TableProps> = ({ rows }) => {
 
             {emptyRows > 0 && (
               <tr style={{ height: 34 * emptyRows }}>
-                <td colSpan={6} aria-hidden />
+                <td colSpan={7} aria-hidden />
               </tr>
             )}
           </tbody>
@@ -139,7 +180,7 @@ const Table: React.FC<TableProps> = ({ rows }) => {
             <tr>
               <CustomTablePagination
                 rowsPerPageOptions={[5, 10, 25, { label: 'Todas', value: -1 }]}
-                colSpan={6}
+                colSpan={7}
                 count={filteredRows.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
@@ -167,7 +208,7 @@ const Table: React.FC<TableProps> = ({ rows }) => {
       </TableContainer>
     </Root>
   );
-};
+}
 
 // ESTILOS
 
