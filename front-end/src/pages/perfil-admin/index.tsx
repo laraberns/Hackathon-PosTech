@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect, useState } from 'react';
 import { Typography, Box, Grid, GlobalStyles, Container } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
@@ -8,9 +9,8 @@ import Nav from '@/components/Nav';
 import axios from 'axios';
 import { states } from '@/utils/states';
 import { areaOptions } from '@/utils/areas';
-import { ONG } from '@/components/Modal';
 import InformacoesPessoais from '@/components/InformacoesPessoais';
-import AllONGs from '@/components/AllONGs';
+import AllONGs, { ONG } from '@/components/AllONGs';
 import ManageUsers from '@/components/ManageUsers';
 import DialogAddONG from '@/components/DialogAddONG';
 import DialogEditONG from '@/components/DialogEditONG';
@@ -44,7 +44,6 @@ export default function AdminProfile() {
         state: '',
         area: '',
         contact: '',
-        logoUrl: ''
     });
     const [selectedOng, setSelectedOng] = useState<ONG | null>(null);
     const [addOngOpen, setAddOngOpen] = useState(false);
@@ -118,16 +117,12 @@ export default function AdminProfile() {
     };
 
     const editOng = async (id: string, updatedOng: ONG, token: string) => {
-        try {
             await axios.patch(`${process.env.BD_API}/ongs/changeong`, { ...updatedOng }, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 }
             });
             toast.success('ONG atualizada com sucesso!');
-        } catch (err) {
-            toast.error('Erro ao atualizar ONG.');
-        }
     };
 
     const addOng = async (newOng: ONG) => {

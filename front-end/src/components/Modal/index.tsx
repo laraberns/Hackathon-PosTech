@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -6,25 +6,16 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-
-export interface ONG {
-  id: string;
-  name: string;
-  description: string;
-  city: string;
-  state: string;
-  area: string;
-  contact: string;
-  logoUrl?: string;
-}
+import { ONG } from '../AllONGs';
 
 interface ModalProps {
   open: boolean;
   onClose: () => void;
   ong: ONG | null;
+  imageUrl: string; // Adiciona imageUrl para exibir a imagem da ONG
 }
 
-const CustomModal: React.FC<ModalProps> = ({ open, onClose, ong }) => {
+const CustomModal: React.FC<ModalProps> = ({ open, onClose, ong, imageUrl }) => {
   const handleClose = () => {
     onClose();
   };
@@ -44,23 +35,13 @@ const CustomModal: React.FC<ModalProps> = ({ open, onClose, ong }) => {
             </Typography>
             {ong && (
               <>
-                {ong.logoUrl ? (
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={ong.logoUrl}
-                    alt={`${ong.name} Logo`}
-                    style={{ objectFit: 'contain', marginBottom: 10 }}
-                  />
-                ) : (
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image="https://img.freepik.com/vetores-gratis/design-plano-sem-sinal-de-foto_23-2149272417.jpg?t=st=1721795238~exp=1721798838~hmac=ec142c37308d1ca1b6b23a4aa17a18cbe638aee063e23f9327170cee5ca747fd&w=740"
-                    alt="Logo Placeholder"
-                    style={{ objectFit: 'contain', marginBottom: 10 }}
-                  />
-                )}
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={imageUrl || "https://img.freepik.com/vetores-gratis/design-plano-sem-sinal-de-foto_23-2149272417.jpg?t=st=1721795238~exp=1721798838~hmac=ec142c37308d1ca1b6b23a4aa17a18cbe638aee063e23f9327170cee5ca747fd&w=740"}
+                  alt={`${ong.name} Logo`}
+                  style={{ objectFit: 'contain', marginBottom: 10 }}
+                />
                 <Typography variant="body1" component="p">
                   <strong>Nome:</strong> {ong.name}<br />
                   <strong>Descrição:</strong> {ong.description}<br />
