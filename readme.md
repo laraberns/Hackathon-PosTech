@@ -10,6 +10,9 @@ O sistema contém funcionalidades de login, cadastro de usuários, listagem de O
 
 - O usuário do tipo ADMIN além de visualizar as ONGs cadastradas, pode adicionar, remover e editar as ONGs do sistema. Ele também pode categorizar os usuários como "Bronze", "Prata" e "Ouro".
 
+### Projeto em funcionamento 
+[Vídeo 🎥](https://drive.google.com/file/d/17ljM6UDNH_2ptlmlQk67V3l8li5qAETa/view?usp=sharing)
+
 ### Funcionalidades
 
 #### **Cadastro de Usuários (Admin/User Comum):** 
@@ -65,17 +68,17 @@ Utiliza o Firestore para armazenamento de dados de usuários e ONGs. Implementa 
 
 ## Instruções para Rodar o Projeto
 
-1. Clone o repositório do front-end:
+1. Clone o repositório:
  ```js
-git clone https://github.com/laraberns/Hackathon-PosTech/front-end
+git clone https://github.com/laraberns/Hackathon-PosTech
  ```
  
-2. Na pasta `front-end`, instale as dependências:
+2. Instale as dependências:
  ```js
 npm install
  ```
 
-3. Adicione um arquivo `next.config.js` com suas chaves do Firebase e banco de dados. Adicione também images > domain com a url "firebasestorage.googleapis.com":
+3. Acesse a pasta front-end e adicione o arquivo `next.config.js` com suas chaves do Firebase e banco de dados. Adicione também images > domain com a url "firebasestorage.googleapis.com":
 ```js
 module.exports = {
   env: {
@@ -94,7 +97,7 @@ module.exports = {
 };
 ```
 
-4. Na pasta `front-end`, rode o projeto front-end:
+4. Abra um terminal na pasta `front-end` e rode o projeto front-end:
  ```js
 npm run dev
  ```
@@ -104,22 +107,12 @@ npm run dev
 "http://localhost:3000/registrar"
  ```
 
-6. Clone o repositório do backend dentro do seu diretório:
- ```js
-git clone https://github.com/laraberns/Hackathon-PosTech/back-end
- ```
-
-7. Na pasta `back-end`, instale as dependências:
- ```js
-npm install
- ```
-
-8. No Firebase Console, siga as etapas abaixo para configurar o serviço:
+6. No Firebase Console, siga as etapas abaixo para configurar o serviço:
 - Acesse as Configurações do Projeto no Firebase Console.
 - Vá para Contas de Serviço e gere uma nova chave privada. Isso criará um arquivo JSON que você deve nomear como creds.json.
-- Coloque o arquivo creds.json na pasta raiz do projeto backend (back).
+- Coloque o arquivo creds.json na pasta raiz do projeto back-end.
 
-9. Crie um arquivo .env com os seguinte campos:
+8. Crie um arquivo .env com os seguinte campos:
 ```js
 EMAIL="seuemail@gmail.com"
 SENHAEMAIL1="aaaa"
@@ -132,8 +125,12 @@ SECRET_KEY='sua-senha-secreta'
 - Com seu gmail acesse '[passwords.google.com](https://myaccount.google.com/apppasswords)' e gere uma senha para aplicativos.
 - A senha será no formato 'aaaa bbbb cccc dddd'. Salve cada conjunto nas variaveis SENHAEMAIL1, SENHAEMAIL2, SENHAEMAIL3 e SENHAEMAIL4.
 
-10. Rode o servidor Node.js::
+9. Abra outro terminal (agora na pasta back-end) e rode o servidor Node.js::
  ```js
 node server.js
  ```
+ 
+10. Aproveite o projeto 😀!
+
 Este README fornece uma visão geral do projeto ConectaONG, detalhando suas funcionalidades, tecnologias utilizadas e instruções para executar localmente.
+
