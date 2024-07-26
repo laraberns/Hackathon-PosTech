@@ -78,7 +78,7 @@ git clone https://github.com/laraberns/Hackathon-PosTech
 npm install
  ```
 
-3. Acesse a pasta front-end e adicione o arquivo `next.config.js` com suas chaves do Firebase e banco de dados. Adicione também images > domain com a url "firebasestorage.googleapis.com":
+3. Acesse a pasta front-end e adicione o arquivo `next.config.js` com suas chaves do Firebase e banco de dados. Adicione também images > domain com a url [firebasestorage.googleapis.com](firebasestorage.googleapis.com).
 ```js
 module.exports = {
   env: {
@@ -89,7 +89,7 @@ module.exports = {
     FIREBASE_MESSAGING_SENDER_ID: "seu-messaging-sender-id",
     FIREBASE_APP_ID: "seu-app-id",
     FIREBASE_FCM_VAPID_KEY: "sua-fcm-vapid-key",
-    BD_API: "seuBancoDeDadosAPI" //se for rodar local coloque o endereço que o seu backend está rodando
+    BD_API: "seuBancoDeDadosAPI" //ao rodar local coloque o endereço que o seu backend está rodando por exemplo: "http://localhost:8383"
   },
   images: {
     domains: ["firebasestorage.googleapis.com"]
@@ -102,7 +102,7 @@ module.exports = {
 npm run dev
  ```
 
-5. Acesse a tela de login:
+5. Acesse a tela de registro do usuário:
  ```js
 "http://localhost:3000/registrar"
  ```
@@ -121,16 +121,16 @@ SENHAEMAIL3="cccc"
 SENHAEMAIL4="dddd"
 SECRET_KEY='sua-senha-secreta'
 ```
-- O e-mail será utilizado para enviar as mensagens de redefinir senha. O projeto está configurado para e-mails do tipo gmail.
-- Com seu gmail acesse '[passwords.google.com](https://myaccount.google.com/apppasswords)' e gere uma senha para aplicativos.
+- O e-mail será utilizado para enviar as mensagens de redefinir senha. O projeto está configurado para e-mails do tipo Gmail.
+- Com seu Gmail acesse [passwords.google.com](https://myaccount.google.com/apppasswords) e gere uma senha para aplicativos.
 - A senha será no formato 'aaaa bbbb cccc dddd'. Salve cada conjunto nas variaveis SENHAEMAIL1, SENHAEMAIL2, SENHAEMAIL3 e SENHAEMAIL4.
 
-9. Abra outro terminal (agora na pasta back-end) e rode o servidor Node.js::
+9. Abra outro terminal (agora na pasta back-end) e rode o servidor Node.js:
  ```js
 node server.js
  ```
  
-10. Aproveite o projeto 😀!
+10. Aproveite o projeto 😀
 
 Este README fornece uma visão geral do projeto ConectaONG, detalhando suas funcionalidades, tecnologias utilizadas e instruções para executar localmente.
 
