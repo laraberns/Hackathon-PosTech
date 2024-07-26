@@ -104,7 +104,7 @@ npm run dev
 
 5. Acesse a tela de registro do usuário:
  ```js
-"http://localhost:3000/registrar"
+http://localhost:3000/registrar
  ```
 
 6. No Firebase Console, siga as etapas abaixo para configurar o serviço:
@@ -114,16 +114,16 @@ npm run dev
 
 8. Crie um arquivo .env com os seguinte campos:
 ```js
-EMAIL="seuemail@gmail.com"
-SENHAEMAIL1="aaaa"
-SENHAEMAIL2="bbbb"
-SENHAEMAIL3="cccc"
-SENHAEMAIL4="dddd"
-SECRET_KEY='sua-senha-secreta'
+EMAIL=seuemail@gmail.com
+SENHAEMAIL1=aaaa
+SENHAEMAIL2=bbbb
+SENHAEMAIL3=cccc
+SENHAEMAIL4=dddd
+SECRET_KEY=sua-senha-secreta
 ```
 - O e-mail será utilizado para enviar as mensagens de redefinir senha. O projeto está configurado para e-mails do tipo Gmail.
 - Com seu Gmail acesse [passwords.google.com](https://myaccount.google.com/apppasswords) e gere uma senha para aplicativos.
-- A senha será no formato 'aaaa bbbb cccc dddd'. Salve cada conjunto nas variaveis SENHAEMAIL1, SENHAEMAIL2, SENHAEMAIL3 e SENHAEMAIL4.
+- A senha será no formato "aaaa bbbb cccc dddd". Salve cada conjunto nas variaveis SENHAEMAIL1, SENHAEMAIL2, SENHAEMAIL3 e SENHAEMAIL4.
 
 9. Abra outro terminal (agora na pasta back-end) e rode o servidor Node.js:
  ```js
